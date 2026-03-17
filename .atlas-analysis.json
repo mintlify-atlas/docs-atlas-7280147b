@@ -1,0 +1,147 @@
+{
+  "projectType": "frontend",
+  "projectName": "TailAdmin Next.js",
+  "projectDescription": "A free, open-source admin dashboard template built with Next.js 16, React 19, TypeScript, and Tailwind CSS v4, providing ready-to-use UI components and pages for building admin panels and dashboards.",
+  "theme": "willow",
+  "primaryColor": "#141c2b",
+  "lightColor": "#4257e2",
+  "darkColor": "#9cacec",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Getting Started",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": ["introduction", "quickstart", "project-structure"]
+          },
+          {
+            "group": "Configuration",
+            "pages": ["configuration/theming", "configuration/dark-mode", "configuration/sidebar"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Dashboard",
+            "pages": ["components/dashboard/ecommerce"]
+          },
+          {
+            "group": "UI Elements",
+            "pages": [
+              "components/ui/alerts",
+              "components/ui/avatar",
+              "components/ui/badge",
+              "components/ui/buttons",
+              "components/ui/images",
+              "components/ui/videos",
+              "components/ui/modal",
+              "components/ui/dropdown"
+            ]
+          },
+          {
+            "group": "Charts",
+            "pages": [
+              "components/charts/line-chart",
+              "components/charts/bar-chart"
+            ]
+          },
+          {
+            "group": "Forms",
+            "pages": [
+              "components/forms/form-elements",
+              "components/forms/input",
+              "components/forms/select",
+              "components/forms/date-picker",
+              "components/forms/multi-select"
+            ]
+          },
+          {
+            "group": "Tables",
+            "pages": ["components/tables/basic-tables"]
+          }
+        ]
+      },
+      {
+        "tab": "Pages",
+        "groups": [
+          {
+            "group": "Auth Pages",
+            "pages": ["pages/auth/sign-in", "pages/auth/sign-up"]
+          },
+          {
+            "group": "Other Pages",
+            "pages": [
+              "pages/calendar",
+              "pages/user-profile",
+              "pages/blank-page",
+              "pages/404-error"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Customization",
+            "pages": ["guides/customization", "guides/adding-pages", "guides/adding-components"]
+          },
+          {
+            "group": "Deployment",
+            "pages": ["guides/deployment/vercel", "guides/deployment/other"]
+          },
+          {
+            "group": "Upgrade",
+            "pages": ["guides/changelog", "guides/upgrade-guide"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Ecommerce dashboard with metrics, charts, and order tracking",
+    "ApexCharts integration for line and bar charts",
+    "Collapsible sidebar with hover expand and mobile support",
+    "Dark mode support via ThemeContext",
+    "Authentication pages (Sign In, Sign Up) with Next.js Server Actions",
+    "Comprehensive UI elements: alerts, avatars, badges, buttons, modals, dropdowns",
+    "Form components: inputs, selects, date picker (Flatpickr), multi-select",
+    "Basic tables component",
+    "Calendar page using FullCalendar",
+    "User profile page",
+    "Interactive world map with jVectorMap",
+    "Built with Next.js 16 App Router and React Server Components",
+    "TypeScript throughout",
+    "Tailwind CSS v4 with responsive design"
+  ],
+  "publicApiSurface": [
+    "EcommerceMetrics component",
+    "MonthlySalesChart component",
+    "MonthlyTarget component",
+    "StatisticsChart component",
+    "RecentOrders component",
+    "DemographicCard component",
+    "CountryMap component",
+    "AppSidebar layout component",
+    "AppHeader layout component",
+    "SidebarContext (useSidebar hook)",
+    "ThemeContext (useTheme hook)",
+    "useModal hook",
+    "useGoBack hook",
+    "Alert component",
+    "Avatar component",
+    "Badge component",
+    "Button component",
+    "Modal component",
+    "Dropdown component",
+    "Table component",
+    "Form / Input / Select / MultiSelect / DatePicker form components",
+    "SignInForm / SignUpForm auth components",
+    "LineChart / BarChart chart components",
+    "PageBreadCrumb component",
+    "ThemeToggleButton component"
+  ]
+}
