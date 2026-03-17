@@ -1,0 +1,133 @@
+---
+title: "Dropdown"
+description: "A controlled dropdown menu panel with outside-click dismissal, composed from a Dropdown wrapper and DropdownItem entries that render as buttons or links."
+---
+
+TailAdmin's dropdown system consists of two components:
+
+- **`Dropdown`** — the floating panel wrapper.
+- **`DropdownItem`** — individual menu items rendered as `<button>` or `<Link>`.
+
+Both are used throughout the dashboard (e.g. the "more options" menus on `MonthlySalesChart`, `MonthlyTarget`, and `DemographicCard`).
+
+## Import
+
+```tsx
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+```
+
+## Basic usage
+
+Manage open state with a local `useState` hook and attach a `dropdown-toggle` class to the trigger button so clicks on it do not fire the outside-click handler.
+
+```tsx
+"use client";
+import { useState } from "react";
+import { Dropdown } from "@/components/ui/dropdown/Dropdown";
+import { DropdownItem } from "@/components/ui/dropdown/DropdownItem";
+import { MoreDotIcon } from "@/icons";
+
+export default function OptionsMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative inline-block">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="dropdown-toggle"
+      >
+        <MoreDotIcon className="text-gray-400 hover:text-gray-700" />
+      </button>
+
+      <Dropdown
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        className="w-40 p-2"
+      >
+        <DropdownItem
+          onItemClick={() => setIsOpen(false)}
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+        >
+          View More
+        </DropdownItem>
+        <DropdownItem
+          onItemClick={() => setIsOpen(false)}
+          className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+        >
+          Delete
+        </DropdownItem>
+      </Dropdown>
+    </div>
+  );
+}
+```
+
+## Link items
+
+Pass `tag="a"` and `href` to render a `<Link>` instead of a `<button>`:
+
+```tsx
+<DropdownItem
+  tag="a"
+  href="/settings"
+  onItemClick={() => setIsOpen(false)}
+  className="flex w-full font-normal text-left text-gray-500 rounded-lg hover:bg-gray-100"
+>
+  Settings
+</DropdownItem>
+```
+
+## Dropdown props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `isOpen` | `boolean` | Yes | — | Controls panel visibility; returns `null` when `false` |
+| `onClose` | `() => void` | Yes | — | Called when a click is detected outside the panel |
+| `children` | `React.ReactNode` | Yes | — | Menu item content |
+| `className` | `string` | No | `""` | Additional classes on the panel (use for width and padding) |
+
+## DropdownItem props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `tag` | `"a" \| "button"` | No | `"button"` | Renders a `<button>` or a Next.js `<Link>` |
+| `href` | `string` | No | — | Required when `tag="a"`; destination URL |
+| `onClick` | `() => void` | No | — | Additional click handler called before `onItemClick` |
+| `onItemClick` | `() => void` | No | — | Typically used to close the dropdown after selection |
+| `baseClassName` | `string` | No | `"block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"` | Base Tailwind classes; override to change the default item style |
+| `className` | `string` | No | `""` | Classes merged with `baseClassName` |
+| `children` | `React.ReactNode` | Yes | — | Item label |
+
+## Outside-click behaviour
+
+`Dropdown` attaches a `mousedown` listener on `document` and calls `onClose` when the click target is outside the panel **and** does not have the `dropdown-toggle` class in its ancestor chain.
+
+<Warning>
+Always add `className="dropdown-toggle"` (or ensure an ancestor has it) on the button that opens the dropdown. Without it, clicking the trigger button will immediately re-close the panel via the outside-click handler.
+</Warning>
+
+## Source
+
+```tsx
+// src/components/ui/dropdown/Dropdown.tsx
+interface DropdownProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+  className?: string;
+}
+```
+
+```tsx
+// src/components/ui/dropdown/DropdownItem.tsx
+interface DropdownItemProps {
+  tag?: "a" | "button";
+  href?: string;
+  onClick?: () => void;
+  onItemClick?: () => void;
+  baseClassName?: string;
+  className?: string;
+  children: React.ReactNode;
+}
+```

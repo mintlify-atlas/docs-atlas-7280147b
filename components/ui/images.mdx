@@ -1,0 +1,172 @@
+---
+title: "Images"
+description: "Three ready-made image layout components built on Next.js Image — a full-width responsive image, a two-column grid, and a three-column grid."
+---
+
+TailAdmin provides three image layout components under `src/components/ui/images/`. All use the Next.js `Image` component for automatic optimisation.
+
+## Import
+
+```tsx
+import ResponsiveImage from "@/components/ui/images/ResponsiveImage";
+import TwoColumnImageGrid from "@/components/ui/images/TwoColumnImageGrid";
+import ThreeColumnImageGrid from "@/components/ui/images/ThreeColumnImageGrid";
+```
+
+## ResponsiveImage
+
+A single full-width image that scales with its container.
+
+```tsx
+import ResponsiveImage from "@/components/ui/images/ResponsiveImage";
+
+<ResponsiveImage />
+```
+
+**Source:**
+
+```tsx
+// src/components/ui/images/ResponsiveImage.tsx
+import Image from "next/image";
+import React from "react";
+
+export default function ResponsiveImage() {
+  return (
+    <div className="relative">
+      <div className="overflow-hidden">
+        <Image
+          src="/images/grid-image/image-01.png"
+          alt="Cover"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={1054}
+          height={600}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## TwoColumnImageGrid
+
+Two images laid out side-by-side on `sm` and larger screens.
+
+```tsx
+import TwoColumnImageGrid from "@/components/ui/images/TwoColumnImageGrid";
+
+<TwoColumnImageGrid />
+```
+
+**Source:**
+
+```tsx
+// src/components/ui/images/TwoColumnImageGrid.tsx
+import Image from "next/image";
+import React from "react";
+
+export default function TwoColumnImageGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div>
+        <Image
+          src="/images/grid-image/image-02.png"
+          alt=" grid"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={517}
+          height={295}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-03.png"
+          alt=" grid"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={517}
+          height={295}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+## ThreeColumnImageGrid
+
+Three images in a responsive grid: 1 column on mobile, 2 on `sm`, 3 on `xl`.
+
+```tsx
+import ThreeColumnImageGrid from "@/components/ui/images/ThreeColumnImageGrid";
+
+<ThreeColumnImageGrid />
+```
+
+**Source:**
+
+```tsx
+// src/components/ui/images/ThreeColumnImageGrid.tsx
+import Image from "next/image";
+import React from "react";
+
+export default function ThreeColumnImageGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div>
+        <Image
+          src="/images/grid-image/image-04.png"
+          alt=" grid"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-05.png"
+          alt=" grid"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+      <div>
+        <Image
+          src="/images/grid-image/image-06.png"
+          alt=" grid"
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+<Tip>
+All three components use hardcoded image paths from the `public/images/grid-image/` directory. Swap the `src` prop values when integrating with your own image assets.
+</Tip>
+
+## Swapping images
+
+Because these are plain React components, the simplest way to use your own images is to copy the component and update the `src` and dimension props:
+
+```tsx
+import Image from "next/image";
+
+export default function MyImageGrid() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {["hero.jpg", "product.jpg", "team.jpg"].map((file) => (
+        <Image
+          key={file}
+          src={`/images/${file}`}
+          alt={file}
+          className="w-full border border-gray-200 rounded-xl dark:border-gray-800"
+          width={338}
+          height={192}
+        />
+      ))}
+    </div>
+  );
+}
+```

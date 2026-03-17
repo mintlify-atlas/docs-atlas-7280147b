@@ -1,0 +1,128 @@
+---
+title: "Videos"
+description: "A YouTube embed component with configurable aspect ratios (16:9, 4:3, 21:9, and 1:1) built on a native iframe."
+---
+
+The `YouTubeEmbed` component renders a responsive YouTube `<iframe>` inside a Tailwind aspect-ratio container. Four aspect ratios are supported out of the box.
+
+## Import
+
+```tsx
+import YouTubeEmbed from "@/components/ui/video/YouTubeEmbed";
+```
+
+## Usage
+
+```tsx
+{/* Default 16:9 */}
+<YouTubeEmbed videoId="dQw4w9WgXcQ" />
+
+{/* 4:3 */}
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="4:3" />
+
+{/* 21:9 (cinematic) */}
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="21:9" />
+
+{/* 1:1 (square) */}
+<YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="1:1" />
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `videoId` | `string` | Yes | — | YouTube video ID (the part after `?v=`) |
+| `aspectRatio` | `"16:9" \| "4:3" \| "21:9" \| "1:1"` | No | `"16:9"` | Controls the wrapper's aspect ratio class |
+| `title` | `string` | No | `"YouTube video"` | Accessible title for the `<iframe>` |
+| `className` | `string` | No | `""` | Additional classes applied to the wrapper `<div>` |
+
+## Aspect ratio class mapping
+
+| Ratio | Tailwind class |
+|---|---|
+| `16:9` | `aspect-video` |
+| `4:3` | `aspect-4/3` |
+| `21:9` | `aspect-21/9` |
+| `1:1` | `aspect-square` |
+
+<Note>
+The `aspect-4/3` and `aspect-21/9` utilities are custom Tailwind values. Ensure they are defined in your `tailwind.config` or that Tailwind v4's arbitrary-value detection picks them up.
+</Note>
+
+## Iframe permissions
+
+The embed always grants the following `allow` attributes:
+
+```
+accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture
+```
+
+`allowFullScreen` is set to `true`.
+
+## Full example layout
+
+The `VideosExample` component (`src/components/ui/video/VideosExample.tsx`) shows all four ratios in a two-column responsive grid:
+
+```tsx
+import YouTubeEmbed from "@/components/ui/video/YouTubeEmbed";
+
+export default function VideosExample() {
+  return (
+    <div className="grid grid-cols-1 gap-5 sm:gap-6 xl:grid-cols-2">
+      <div className="space-y-5 sm:space-y-6">
+        {/* 16:9 */}
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" />
+        {/* 4:3 */}
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="4:3" />
+      </div>
+      <div className="space-y-5 sm:space-y-6">
+        {/* 21:9 */}
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="21:9" />
+        {/* 1:1 */}
+        <YouTubeEmbed videoId="dQw4w9WgXcQ" aspectRatio="1:1" />
+      </div>
+    </div>
+  );
+}
+```
+
+## Source
+
+```tsx
+// src/components/ui/video/YouTubeEmbed.tsx
+type AspectRatio = "16:9" | "4:3" | "21:9" | "1:1";
+
+interface YouTubeEmbedProps {
+  videoId: string;
+  aspectRatio?: AspectRatio;
+  title?: string;
+  className?: string;
+}
+
+const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({
+  videoId,
+  aspectRatio = "16:9",
+  title = "YouTube video",
+  className = "",
+}) => {
+  const aspectRatioClass = {
+    "16:9": "aspect-video",
+    "4:3": "aspect-4/3",
+    "21:9": "aspect-21/9",
+    "1:1": "aspect-square",
+  }[aspectRatio];
+
+  return (
+    <div className={`overflow-hidden rounded-lg ${aspectRatioClass} ${className}`}>
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}`}
+        title={title}
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        className="w-full h-full"
+      />
+    </div>
+  );
+};
+```

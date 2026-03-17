@@ -1,0 +1,84 @@
+---
+title: "Changelog"
+description: "Release history for TailAdmin Next.js, most recent version first."
+---
+
+<AccordionGroup>
+  <Accordion title="Version 2.2.3 — March 15, 2026">
+    - Updated ESLint configuration and dependencies.
+    - Upgraded Next.js to version 16.1.6.
+  </Accordion>
+
+  <Accordion title="Version 2.2.2 — December 30, 2025">
+    - Fixed date picker positioning and functionality in Statistics Chart.
+  </Accordion>
+
+  <Accordion title="Version 2.1.0 — November 15, 2025">
+    - Updated to Next.js 16.x.
+    - Fixed all reported minor bugs.
+  </Accordion>
+
+  <Accordion title="Version 2.0.2 — March 25, 2025">
+    - Upgraded to Next.js 16.x to address [CVE-2025-29927](https://nextjs.org/blog/cve-2025-29927).
+    - Added package overrides for `@react-jvectormap` to prevent peer-dependency errors during installation.
+    - Migrated from `react-flatpickr` to the `flatpickr` package for React 19 support.
+  </Accordion>
+
+  <Accordion title="Version 2.0.1 — February 27, 2025">
+    **Tailwind CSS v4 upgrade**
+
+    - Upgraded to Tailwind CSS v4 for better performance and efficiency.
+    - Updated class usage to match the latest v4 syntax and features.
+    - Replaced deprecated classes and optimized styles.
+
+    After pulling this update, run `npm install` (or `yarn install`) to update dependencies. Refer to the [Tailwind CSS v4 Migration Guide](https://tailwindcss.com/docs/upgrade-guide) if you encounter style changes or compatibility issues.
+  </Accordion>
+
+  <Accordion title="Version 2.0.0 — February 2025">
+    **Major release — Next.js 16 redesign**
+
+    This release is a complete redesign focused on Next.js 16 and React 19.
+
+    **Major improvements**
+    - Complete redesign using Next.js 16 App Router and React Server Components.
+    - Enhanced user interface with Next.js-optimized components.
+    - Improved responsiveness and accessibility.
+    - New collapsible sidebar, chat screens, and calendar.
+    - Redesigned authentication using Next.js App Router and Server Actions.
+    - Updated data visualization using ApexCharts for React.
+
+    **Breaking changes**
+    - Migrated from Next.js 14 to Next.js 16.
+    - Chart components now use ApexCharts for React (previously a different library).
+    - Authentication flow updated to use Server Actions and middleware.
+
+    See the [upgrade guide](/guides/upgrade-guide) for migration instructions.
+  </Accordion>
+
+  <Accordion title="v1.3.4 — July 1, 2024">
+    - Fixed JSvectormap rendering issues.
+  </Accordion>
+
+  <Accordion title="v1.3.3 — June 20, 2024">
+    - Fixed build error related to the Loader component.
+  </Accordion>
+
+  <Accordion title="v1.3.2 — June 19, 2024">
+    - Added `ClickOutside` component for dropdown menus.
+    - Refactored sidebar components.
+    - Updated the Jsvectormap package.
+  </Accordion>
+
+  <Accordion title="v1.3.1 — February 12, 2024">
+    - Fixed layout naming consistency.
+    - Updated styles.
+  </Accordion>
+
+  <Accordion title="v1.3.0 — February 5, 2024">
+    - Upgraded to Next.js 14.
+    - Added Flatpickr integration.
+    - Improved form elements.
+    - Enhanced multiselect functionality.
+    - Added default layout component.
+  </Accordion>
+</AccordionGroup>

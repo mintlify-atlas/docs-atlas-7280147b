@@ -1,0 +1,122 @@
+---
+title: "Badge"
+description: "Compact pill labels with two style variants (light and solid), seven colour options, two sizes, and optional leading or trailing icons."
+---
+
+Badges are used throughout TailAdmin to surface status information — order states in `RecentOrders`, percentage changes in `EcommerceMetrics`, and more.
+
+## Import
+
+```tsx
+import Badge from "@/components/ui/badge/Badge";
+```
+
+## Usage
+
+### Light variant (default)
+
+```tsx
+<Badge variant="light" color="primary">Primary</Badge>
+<Badge variant="light" color="success">Success</Badge>
+<Badge variant="light" color="error">Error</Badge>
+<Badge variant="light" color="warning">Warning</Badge>
+<Badge variant="light" color="info">Info</Badge>
+<Badge variant="light" color="light">Light</Badge>
+<Badge variant="light" color="dark">Dark</Badge>
+```
+
+### Solid variant
+
+```tsx
+<Badge variant="solid" color="primary">Primary</Badge>
+<Badge variant="solid" color="success">Success</Badge>
+<Badge variant="solid" color="error">Error</Badge>
+<Badge variant="solid" color="warning">Warning</Badge>
+<Badge variant="solid" color="info">Info</Badge>
+<Badge variant="solid" color="light">Light</Badge>
+<Badge variant="solid" color="dark">Dark</Badge>
+```
+
+### With icons
+
+```tsx
+import { PlusIcon } from "@/icons";
+
+{/* Left icon */}
+<Badge variant="light" color="primary" startIcon={<PlusIcon />}>Primary</Badge>
+
+{/* Right icon */}
+<Badge variant="light" color="success" endIcon={<PlusIcon />}>Success</Badge>
+
+{/* Solid with left icon */}
+<Badge variant="solid" color="error" startIcon={<PlusIcon />}>Error</Badge>
+```
+
+### Sizes
+
+```tsx
+<Badge size="sm" color="success">Small</Badge>
+<Badge size="md" color="success">Medium</Badge>  {/* default */}
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `variant` | `"light" \| "solid"` | No | `"light"` | Light uses a tinted background; solid uses a full colour fill |
+| `color` | `"primary" \| "success" \| "error" \| "warning" \| "info" \| "light" \| "dark"` | No | `"primary"` | Colour scheme applied to the badge |
+| `size` | `"sm" \| "md"` | No | `"md"` | Controls font size; `sm` uses `text-theme-xs`, `md` uses `text-sm` |
+| `startIcon` | `React.ReactNode` | No | — | Icon rendered before the label text |
+| `endIcon` | `React.ReactNode` | No | — | Icon rendered after the label text |
+| `children` | `React.ReactNode` | Yes | — | Badge label content |
+
+## Colour reference
+
+### Light variant
+
+| Color | Light background | Text |
+|---|---|---|
+| `primary` | `bg-brand-50` | `text-brand-500` |
+| `success` | `bg-success-50` | `text-success-600` |
+| `error` | `bg-error-50` | `text-error-600` |
+| `warning` | `bg-warning-50` | `text-warning-600` |
+| `info` | `bg-blue-light-50` | `text-blue-light-500` |
+| `light` | `bg-gray-100` | `text-gray-700` |
+| `dark` | `bg-gray-500` | `text-white` |
+
+### Solid variant
+
+| Color | Background | Text |
+|---|---|---|
+| `primary` | `bg-brand-500` | `text-white` |
+| `success` | `bg-success-500` | `text-white` |
+| `error` | `bg-error-500` | `text-white` |
+| `warning` | `bg-warning-500` | `text-white` |
+| `info` | `bg-blue-light-500` | `text-white` |
+| `light` | `bg-gray-400` | `text-white` |
+| `dark` | `bg-gray-700` | `text-white` |
+
+## Source
+
+```tsx
+// src/components/ui/badge/Badge.tsx
+type BadgeVariant = "light" | "solid";
+type BadgeSize = "sm" | "md";
+type BadgeColor =
+  | "primary"
+  | "success"
+  | "error"
+  | "warning"
+  | "info"
+  | "light"
+  | "dark";
+
+interface BadgeProps {
+  variant?: BadgeVariant;
+  size?: BadgeSize;
+  color?: BadgeColor;
+  startIcon?: React.ReactNode;
+  endIcon?: React.ReactNode;
+  children: React.ReactNode;
+}
+```

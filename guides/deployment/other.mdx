@@ -1,0 +1,153 @@
+---
+title: "Other deployment options"
+description: "How to deploy TailAdmin to a self-hosted Node.js server, inside a Docker container, or as a static export."
+---
+
+Beyond Vercel, TailAdmin can be deployed anywhere that supports Node.js or that can run a Docker container.
+
+## Node.js requirements
+
+TailAdmin requires **Node.js 18.x or later**. Node.js 20.x or later is recommended for production.
+
+## Self-hosted Node.js server
+
+<Steps>
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+
+  <Step title="Build for production">
+    ```bash
+    npm run build
+    ```
+
+    Next.js compiles the application and writes the output to the `.next` directory.
+  </Step>
+
+  <Step title="Start the production server">
+    ```bash
+    npm run start
+    ```
+
+    By default Next.js listens on port `3000`. Pass the `PORT` environment variable to change this:
+
+    ```bash
+    PORT=8080 npm run start
+    ```
+  </Step>
+
+  <Step title="Keep the process alive">
+    Use a process manager such as [PM2](https://pm2.keymetrics.io/) to restart the server automatically on crashes and on reboot:
+
+    ```bash
+    npm install -g pm2
+    pm2 start npm --name "tailadmin" -- start
+    pm2 save
+    pm2 startup
+    ```
+  </Step>
+</Steps>
+
+<Tip>
+  Place a reverse proxy (Nginx or Caddy) in front of the Next.js server to handle TLS termination, gzip compression, and static file caching.
+</Tip>
+
+## Docker containerization
+
+The following `Dockerfile` builds a minimal production image:
+
+```dockerfile
+# Stage 1 — install dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Stage 2 — build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# Stage 3 — production image
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+CMD ["node", "server.js"]
+```
+
+<Note>
+  The `standalone` output requires `output: 'standalone'` in `next.config.ts`. Add it before building:
+
+  ```typescript
+  // next.config.ts
+  const nextConfig: NextConfig = {
+    output: 'standalone',
+    // ...rest of config
+  };
+  ```
+</Note>
+
+Build and run the container:
+
+```bash
+docker build -t tailadmin .
+docker run -p 3000:3000 tailadmin
+```
+
+Pass environment variables at runtime:
+
+```bash
+docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL=https://api.yourapp.com tailadmin
+```
+
+## Static export
+
+Next.js can export a fully static HTML/CSS/JS site with `output: 'export'`. However, several TailAdmin features rely on Next.js server capabilities that are not available in a static export:
+
+<Warning>
+  The following features do not work with `output: 'export'`:
+  - Server Actions (used by the authentication flow)
+  - API routes
+  - Middleware-based route protection
+  - Image optimization via `next/image` (requires a Node.js server or an image CDN)
+
+  If you need these features, deploy as a standard Node.js server or on Vercel instead.
+</Warning>
+
+If you are building a read-only dashboard with no server-side logic, you can enable static export:
+
+```typescript
+// next.config.ts
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: 'export',
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
+  },
+};
+
+export default nextConfig;
+```
+
+Then run:
+
+```bash
+npm run build
+```
+
+Next.js writes the static output to the `out/` directory. Upload the contents of `out/` to any static hosting provider (AWS S3, Cloudflare Pages, GitHub Pages, etc.).

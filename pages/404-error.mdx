@@ -1,0 +1,183 @@
+---
+title: "404 error page"
+description: "Full-width error page displayed when a route is not found. TailAdmin provides two implementations: a Next.js App Router not-found.tsx file for automatic handling, and a dedicated /error-404 route."
+---
+
+TailAdmin includes two 404 implementations that share identical markup:
+
+- **`src/app/not-found.tsx`** — The Next.js App Router [not-found convention](https://nextjs.org/docs/app/api-reference/file-conventions/not-found). Next.js renders this file automatically whenever `notFound()` is called inside a Server Component, or when no matching route is found.
+- **`src/app/(full-width-pages)/(error-pages)/error-404/page.tsx`** — A navigable `/error-404` route inside the `(full-width-pages)` group, rendered without the admin sidebar or header.
+
+<Note>
+For automatic 404 handling in production, `not-found.tsx` is the file that matters. The `/error-404` route exists as a preview page within the template so you can inspect the design without triggering an actual missing route.
+</Note>
+
+## not-found.tsx (App Router)
+
+Next.js automatically serves `src/app/not-found.tsx` when no route matches or when `notFound()` is called.
+
+```tsx
+// src/app/not-found.tsx
+import GridShape from "@/components/common/GridShape";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+export default function NotFound() {
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
+      <GridShape />
+      <div className="mx-auto w-full max-w-[242px] text-center sm:max-w-[472px]">
+        <h1 className="mb-8 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-2xl">
+          ERROR
+        </h1>
+
+        <Image
+          src="/images/error/404.svg"
+          alt="404"
+          className="dark:hidden"
+          width={472}
+          height={152}
+        />
+        <Image
+          src="/images/error/404-dark.svg"
+          alt="404"
+          className="hidden dark:block"
+          width={472}
+          height={152}
+        />
+
+        <p className="mt-10 mb-6 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
+          We can&apos;t seem to find the page you are looking for!
+        </p>
+
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+        >
+          Back to Home Page
+        </Link>
+      </div>
+      <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
+        &copy; {new Date().getFullYear()} - TailAdmin
+      </p>
+    </div>
+  );
+}
+```
+
+## /error-404 page (preview route)
+
+The `/error-404` route (`src/app/(full-width-pages)/(error-pages)/error-404/page.tsx`) is identical in structure and markup. It adds a `metadata` export and renders through the `(full-width-pages)` layout so it has its own full-screen shell.
+
+```tsx
+// src/app/(full-width-pages)/(error-pages)/error-404/page.tsx
+import GridShape from "@/components/common/GridShape";
+import { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+export const metadata: Metadata = {
+  title: "Next.js Error 404 | TailAdmin - Next.js Dashboard Template",
+  description:
+    "This is Next.js Error 404 page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
+};
+
+export default function Error404() {
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen p-6 overflow-hidden z-1">
+      <GridShape />
+      <div className="mx-auto w-full max-w-[242px] text-center sm:max-w-[472px]">
+        <h1 className="mb-8 font-bold text-gray-800 text-title-md dark:text-white/90 xl:text-title-2xl">
+          ERROR
+        </h1>
+
+        <Image
+          src="/images/error/404.svg"
+          alt="404"
+          className="dark:hidden"
+          width={472}
+          height={152}
+        />
+        <Image
+          src="/images/error/404-dark.svg"
+          alt="404"
+          className="hidden dark:block"
+          width={472}
+          height={152}
+        />
+
+        <p className="mt-10 mb-6 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
+          We can&apos;t seem to find the page you are looking for!
+        </p>
+
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-5 py-3.5 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
+        >
+          Back to Home Page
+        </Link>
+      </div>
+      <p className="absolute text-sm text-center text-gray-500 -translate-x-1/2 bottom-6 left-1/2 dark:text-gray-400">
+        &copy; {new Date().getFullYear()} - TailAdmin
+      </p>
+    </div>
+  );
+}
+```
+
+## What the page includes
+
+<CardGroup cols={2}>
+  <Card title="GridShape background" icon="grid">
+    The `GridShape` component renders a decorative background grid pattern behind the error content.
+  </Card>
+  <Card title="404 SVG illustration" icon="image">
+    Light and dark mode 404 images from `/images/error/404.svg` and `/images/error/404-dark.svg`, toggled with Tailwind `dark:hidden` / `hidden dark:block`.
+  </Card>
+  <Card title="Back to home link" icon="house">
+    A styled `Link` component directing users back to `/` using the standard TailAdmin button styling.
+  </Card>
+  <Card title="Footer copyright" icon="copyright">
+    An absolutely positioned footer line with the current year via `new Date().getFullYear()`.
+  </Card>
+</CardGroup>
+
+## Customising the 404 page
+
+### Change the error message
+
+Edit the paragraph text inside `not-found.tsx`:
+
+```tsx
+<p className="mt-10 mb-6 text-base text-gray-700 dark:text-gray-400 sm:text-lg">
+  The page you requested does not exist. Please check the URL.
+</p>
+```
+
+### Change the illustration
+
+Replace `/images/error/404.svg` and `/images/error/404-dark.svg` with your own SVG or raster images. Update the `width` and `height` props on the `<Image>` components to match your image dimensions.
+
+### Trigger not-found programmatically
+
+Call `notFound()` from `next/navigation` inside any Server Component to render the `not-found.tsx` file:
+
+```tsx
+import { notFound } from "next/navigation";
+
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await fetchProduct(params.id);
+
+  if (!product) {
+    notFound(); // Renders not-found.tsx
+  }
+
+  return <div>{product.name}</div>;
+}
+```
+
+<Tip>
+The `not-found.tsx` file at the root of the `app` directory acts as a global catch-all. You can also place `not-found.tsx` files inside nested route segments to provide segment-specific error pages with different messaging.
+</Tip>

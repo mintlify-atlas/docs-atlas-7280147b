@@ -1,0 +1,170 @@
+---
+title: "Dark mode"
+description: "How TailAdmin implements dark mode using ThemeContext, the useTheme hook, and Tailwind's dark: variant."
+---
+
+TailAdmin ships with full dark mode support. The theme is controlled by `ThemeContext`, persisted in `localStorage`, and applied by toggling a `dark` class on the `<html>` element. Tailwind's `dark:` variant then activates dark-mode styles wherever you use it.
+
+## How `ThemeContext` works
+
+The context is defined in `src/context/ThemeContext.tsx`.
+
+```tsx
+"use client";
+
+import type React from "react";
+import { createContext, useState, useContext, useEffect } from "react";
+
+type Theme = "light" | "dark";
+
+type ThemeContextType = {
+  theme: Theme;
+  toggleTheme: () => void;
+};
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [theme, setTheme] = useState<Theme>("light");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    // Runs only on the client — reads the saved preference
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    const initialTheme = savedTheme || "light";
+    setTheme(initialTheme);
+    setIsInitialized(true);
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized) {
+      localStorage.setItem("theme", theme);
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [theme, isInitialized]);
+
+  const toggleTheme = () => {
+    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
+};
+```
+
+Key implementation details:
+
+- The provider initialises with `"light"` to avoid a flash during server-side rendering.
+- A separate `isInitialized` flag ensures `localStorage` and the DOM are only touched after the first client-side render.
+- `toggleTheme` flips between `"light"` and `"dark"`. The second `useEffect` applies the change to both `localStorage` and the `<html>` class list.
+
+## Setup in the root layout
+
+`ThemeProvider` wraps the entire application in `src/app/layout.tsx`:
+
+```tsx
+import { ThemeProvider } from '@/context/ThemeContext';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className={`${outfit.className} dark:bg-gray-900`}>
+        <ThemeProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+## Using the `useTheme` hook
+
+Import `useTheme` in any Client Component to read the current theme or trigger a toggle:
+
+```tsx
+"use client";
+
+import { useTheme } from "@/context/ThemeContext";
+
+export function MyComponent() {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <button onClick={toggleTheme}>
+      Current theme: {theme}
+    </button>
+  );
+}
+```
+
+<Warning>
+  `useTheme` must be called inside a component that is a descendant of `ThemeProvider`. Calling it outside the provider tree throws an error.
+</Warning>
+
+## The `ThemeToggleButton` component
+
+TailAdmin includes a ready-made toggle button at `src/components/common/ThemeToggleButton.tsx`. It is rendered in `AppHeader` and visible in the top navigation bar.
+
+```tsx
+import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
+
+// Inside AppHeader:
+<ThemeToggleButton />
+```
+
+You can place `ThemeToggleButton` anywhere in your layout without any additional props.
+
+## Using `dark:` Tailwind classes
+
+With the `dark` class on `<html>`, any Tailwind `dark:` utility activates automatically:
+
+```tsx
+<div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+  This div switches between light and dark backgrounds.
+</div>
+```
+
+The `@custom-variant dark` line in `globals.css` tells Tailwind how to apply these classes:
+
+```css
+@custom-variant dark (&:is(.dark *));
+```
+
+This means `dark:` utilities apply whenever an element is a descendant of an element with the `dark` class — which is the `<html>` element in TailAdmin.
+
+## Adding dark styles to new components
+
+When you build a new component, add `dark:` variants alongside each light-mode class:
+
+```tsx
+<div className="
+  rounded-lg border border-gray-200 bg-white p-4
+  dark:border-gray-800 dark:bg-gray-900
+">
+  <p className="text-gray-700 dark:text-gray-300">
+    Card content
+  </p>
+</div>
+```
+
+<Tip>
+  Follow the pattern used in the existing components: use `gray-900` for dark backgrounds, `gray-800` for dark borders, and `gray-300`–`gray-400` for dark body text.
+</Tip>

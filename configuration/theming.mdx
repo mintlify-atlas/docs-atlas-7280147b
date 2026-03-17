@@ -1,0 +1,178 @@
+---
+title: "Theming"
+description: "How TailAdmin configures Tailwind CSS v4 design tokens and where to customise colors, typography, and spacing."
+---
+
+TailAdmin uses **Tailwind CSS v4**, which moves all theme configuration directly into CSS using the `@theme` directive. There is no `tailwind.config.js` file — all design tokens are defined in `src/app/globals.css`.
+
+## How Tailwind CSS v4 is configured
+
+The entry point is `globals.css`. It imports Tailwind, declares all theme tokens with `@theme`, registers the `dark` variant, and adds component utility classes.
+
+```css
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  /* all design tokens are declared here */
+}
+```
+
+<Info>
+  The `@custom-variant dark` line tells Tailwind to apply `dark:` utilities when any ancestor element has the `dark` class. The `ThemeContext` adds and removes that class on `<html>`. See the [Dark mode](/configuration/dark-mode) page for details.
+</Info>
+
+## Color tokens
+
+Every color in TailAdmin is defined as a CSS custom property under `@theme`. You can use them directly as Tailwind utilities — for example `bg-brand-500` or `text-gray-700`.
+
+### Brand colors
+
+The primary brand palette runs from `brand-25` (near-white) to `brand-950` (near-black).
+
+```css
+@theme {
+  --color-brand-25:  #f2f7ff;
+  --color-brand-50:  #ecf3ff;
+  --color-brand-100: #dde9ff;
+  --color-brand-200: #c2d6ff;
+  --color-brand-300: #9cb9ff;
+  --color-brand-400: #7592ff;
+  --color-brand-500: #465fff;  /* primary interactive color */
+  --color-brand-600: #3641f5;
+  --color-brand-700: #2a31d8;
+  --color-brand-800: #252dae;
+  --color-brand-900: #262e89;
+  --color-brand-950: #161950;
+}
+```
+
+To change the brand color, replace the hex values in `globals.css`. Because these are CSS custom properties, the change propagates instantly to every component that uses a `brand-*` utility.
+
+### Semantic color palettes
+
+In addition to brand colors, the following semantic palettes are available:
+
+| Palette | Usage |
+|---|---|
+| `gray-*` | Neutral backgrounds, borders, and text |
+| `blue-light-*` | Secondary informational color |
+| `success-*` | Positive states and confirmations |
+| `error-*` | Destructive actions and error states |
+| `warning-*` | Caution and warning states |
+| `orange-*` | Accent color |
+
+Each palette follows the same numeric scale from `25` to `950`.
+
+### Special color tokens
+
+```css
+@theme {
+  --color-white: #ffffff;
+  --color-black: #101828;
+  --color-current: currentColor;
+  --color-transparent: transparent;
+  --color-gray-dark: #1a2231;    /* dark sidebar background */
+  --color-theme-pink-500: #ee46bc;
+  --color-theme-purple-500: #7a5af8;
+}
+```
+
+## Typography
+
+### Font family
+
+TailAdmin uses the **Outfit** font loaded via `next/font/google` in the root layout. The font is registered as a theme token:
+
+```css
+@theme {
+  --font-outfit: Outfit, sans-serif;
+}
+```
+
+The body applies it via the global base layer:
+
+```css
+@layer base {
+  body {
+    @apply font-outfit;
+  }
+}
+```
+
+To switch fonts, change the import in `src/app/layout.tsx` and update `--font-outfit` in `globals.css`.
+
+### Text size tokens
+
+Custom text size tokens extend the default Tailwind scale:
+
+```css
+@theme {
+  /* Display sizes */
+  --text-title-2xl: 72px;  /* line-height: 90px */
+  --text-title-xl:  60px;  /* line-height: 72px */
+  --text-title-lg:  48px;  /* line-height: 60px */
+  --text-title-md:  36px;  /* line-height: 44px */
+  --text-title-sm:  30px;  /* line-height: 38px */
+
+  /* Body / UI sizes */
+  --text-theme-xl: 20px;   /* line-height: 30px */
+  --text-theme-sm: 14px;   /* line-height: 20px */
+  --text-theme-xs: 12px;   /* line-height: 18px */
+}
+```
+
+Use these as Tailwind utilities: `text-title-md`, `text-theme-sm`, and so on.
+
+## Breakpoints
+
+TailAdmin replaces the default Tailwind breakpoints with a custom set:
+
+```css
+@theme {
+  --breakpoint-2xsm: 375px;
+  --breakpoint-xsm:  425px;
+  --breakpoint-sm:   640px;
+  --breakpoint-md:   768px;
+  --breakpoint-lg:   1024px;
+  --breakpoint-xl:   1280px;
+  --breakpoint-2xl:  1536px;
+  --breakpoint-3xl:  2000px;
+}
+```
+
+The `2xsm` and `xsm` breakpoints are additions for small mobile viewports. `3xl` targets very large displays.
+
+## Shadow tokens
+
+Themed shadow utilities are available for consistent elevation:
+
+| Token | Utility class |
+|---|---|
+| `--shadow-theme-xs` | `shadow-theme-xs` |
+| `--shadow-theme-sm` | `shadow-theme-sm` |
+| `--shadow-theme-md` | `shadow-theme-md` |
+| `--shadow-theme-lg` | `shadow-theme-lg` |
+| `--shadow-theme-xl` | `shadow-theme-xl` |
+| `--shadow-focus-ring` | `shadow-focus-ring` |
+
+## Custom utility classes
+
+`globals.css` also defines several component-level utilities using `@utility`. These are used by the sidebar navigation:
+
+```css
+@utility menu-item {
+  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+}
+
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+}
+```
+
+You can follow the same `@utility` pattern to define your own reusable component classes.

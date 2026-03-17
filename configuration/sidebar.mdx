@@ -1,0 +1,205 @@
+---
+title: "Sidebar"
+description: "How SidebarContext manages sidebar state and how to add new navigation items to AppSidebar."
+---
+
+The sidebar is controlled by `SidebarContext`, which tracks whether it is expanded, hovered, or open on mobile. The `AppSidebar` component renders navigation from static arrays of `NavItem` objects.
+
+## How `SidebarContext` works
+
+The context is defined in `src/context/SidebarContext.tsx`.
+
+```tsx
+"use client";
+import React, { createContext, useContext, useState, useEffect } from "react";
+
+type SidebarContextType = {
+  isExpanded: boolean;
+  isMobileOpen: boolean;
+  isHovered: boolean;
+  activeItem: string | null;
+  openSubmenu: string | null;
+  toggleSidebar: () => void;
+  toggleMobileSidebar: () => void;
+  setIsHovered: (isHovered: boolean) => void;
+  setActiveItem: (item: string | null) => void;
+  toggleSubmenu: (item: string) => void;
+};
+
+export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const toggleSidebar = () => setIsExpanded((prev) => !prev);
+  const toggleMobileSidebar = () => setIsMobileOpen((prev) => !prev);
+  const toggleSubmenu = (item: string) =>
+    setOpenSubmenu((prev) => (prev === item ? null : item));
+
+  return (
+    <SidebarContext.Provider
+      value={{
+        isExpanded: isMobile ? false : isExpanded,
+        isMobileOpen,
+        isHovered,
+        activeItem,
+        openSubmenu,
+        toggleSidebar,
+        toggleMobileSidebar,
+        setIsHovered,
+        setActiveItem,
+        toggleSubmenu,
+      }}
+    >
+      {children}
+    </SidebarContext.Provider>
+  );
+};
+```
+
+## The `useSidebar` hook
+
+Import `useSidebar` in any Client Component to access or control sidebar state:
+
+```tsx
+import { useSidebar } from "@/context/SidebarContext";
+
+const { isExpanded, isMobileOpen, isHovered, toggleSidebar } = useSidebar();
+```
+
+### Return values
+
+| Property | Type | Description |
+|---|---|---|
+| `isExpanded` | `boolean` | `true` when the sidebar is in its full-width expanded state on desktop. Always `false` on mobile. |
+| `isMobileOpen` | `boolean` | `true` when the mobile drawer is visible. |
+| `isHovered` | `boolean` | `true` when the user's cursor is over a collapsed sidebar, triggering the hover-expand behaviour. |
+| `activeItem` | `string \| null` | The name of the currently active navigation item. |
+| `openSubmenu` | `string \| null` | The name of the currently open submenu item. |
+| `toggleSidebar` | `() => void` | Toggles `isExpanded` on desktop. Used by the hamburger button in `AppHeader`. |
+| `toggleMobileSidebar` | `() => void` | Toggles `isMobileOpen`. Used by the hamburger button on mobile. |
+| `setIsHovered` | `(value: boolean) => void` | Set by `AppSidebar`'s `onMouseEnter`/`onMouseLeave` handlers. |
+| `setActiveItem` | `(item: string \| null) => void` | Programmatically marks a nav item as active. |
+| `toggleSubmenu` | `(item: string) => void` | Opens or closes a named submenu. |
+
+<Warning>
+  `useSidebar` must be called inside a component that is a descendant of `SidebarProvider`. Calling it outside the provider tree throws an error.
+</Warning>
+
+## How `AppHeader` toggles the sidebar
+
+`AppHeader` calls the correct toggle function based on the current viewport:
+
+```tsx
+const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+const handleToggle = () => {
+  if (window.innerWidth >= 1024) {
+    toggleSidebar();
+  } else {
+    toggleMobileSidebar();
+  }
+};
+```
+
+## The `NavItem` type
+
+Navigation items in `AppSidebar` follow this TypeScript type, defined in `src/layout/AppSidebar.tsx`:
+
+```tsx
+type NavItem = {
+  name: string;
+  icon: React.ReactNode;
+  path?: string;           // direct link — omit if the item has subItems
+  subItems?: {
+    name: string;
+    path: string;
+    pro?: boolean;         // shows a "pro" badge
+    new?: boolean;         // shows a "new" badge
+  }[];
+};
+```
+
+A `NavItem` either has a `path` (a direct link) or `subItems` (a collapsible group), but not both.
+
+## Adding a navigation item
+
+Navigation items are declared in two static arrays at the top of `src/layout/AppSidebar.tsx`:
+
+- `navItems` — rendered under the **Menu** heading.
+- `othersItems` — rendered under the **Others** heading.
+
+To add a new top-level item with a direct link, add an entry to `navItems`:
+
+```tsx
+import { YourIcon } from "../icons/index";
+
+const navItems: NavItem[] = [
+  // ...existing items
+  {
+    icon: <YourIcon />,
+    name: "Analytics",
+    path: "/analytics",
+  },
+];
+```
+
+To add an item with nested sub-pages, use `subItems`:
+
+```tsx
+const navItems: NavItem[] = [
+  // ...existing items
+  {
+    icon: <YourIcon />,
+    name: "Reports",
+    subItems: [
+      { name: "Monthly", path: "/reports/monthly" },
+      { name: "Annual",  path: "/reports/annual", pro: true },
+    ],
+  },
+];
+```
+
+<Tip>
+  Icons are React components exported from `src/icons/index.ts`. Add your own SVG files to `src/icons/` and export them from the index to keep the icon imports consistent.
+</Tip>
+
+## Sidebar width behaviour
+
+The sidebar renders at different widths depending on state:
+
+| State | Width |
+|---|---|
+| Expanded (`isExpanded: true`) | 290px |
+| Collapsed (`isExpanded: false`) | 90px (icons only) |
+| Hover-expanded (`isHovered: true`) | 290px |
+| Mobile open (`isMobileOpen: true`) | 290px (slides in from left) |
+
+The main content area in `src/app/(admin)/layout.tsx` adjusts its left margin to match:
+
+```tsx
+const mainContentMargin = isMobileOpen
+  ? "ml-0"
+  : isExpanded || isHovered
+  ? "lg:ml-[290px]"
+  : "lg:ml-[90px]";
+```

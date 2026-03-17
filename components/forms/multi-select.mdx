@@ -1,0 +1,151 @@
+---
+title: "Multi-select"
+description: "A custom multi-option dropdown that renders selected values as removable tag pills and supports a controlled or uncontrolled initial selection."
+---
+
+The `MultiSelect` component (`src/components/form/MultiSelect.tsx`) is a fully custom dropdown built with React state — no external library is required. Selected options appear as dismissible pill tags inside the trigger. Clicking the trigger or the caret opens/closes the dropdown list.
+
+## Import
+
+```tsx
+import MultiSelect from "@/components/form/MultiSelect";
+```
+
+## Usage
+
+### Basic usage
+
+```tsx
+"use client";
+import { useState } from "react";
+import MultiSelect from "@/components/form/MultiSelect";
+
+const options = [
+  { value: "1", text: "Option 1", selected: false },
+  { value: "2", text: "Option 2", selected: false },
+  { value: "3", text: "Option 3", selected: false },
+  { value: "4", text: "Option 4", selected: false },
+  { value: "5", text: "Option 5", selected: false },
+];
+
+export default function MyForm() {
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+
+  return (
+    <MultiSelect
+      label="Tags"
+      options={options}
+      onChange={(values) => setSelectedValues(values)}
+    />
+  );
+}
+```
+
+### With pre-selected values
+
+Pass an array of option `value` strings to `defaultSelected`:
+
+```tsx
+<MultiSelect
+  label="Multiple Select Options"
+  options={options}
+  defaultSelected={["1", "3"]}
+  onChange={(values) => console.log(values)}
+/>
+```
+
+### Disabled state
+
+```tsx
+<MultiSelect
+  label="Categories"
+  options={options}
+  disabled={true}
+/>
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `label` | `string` | Yes | — | Label text rendered above the dropdown trigger |
+| `options` | `Option[]` | Yes | — | Array of selectable options. See the `Option` type below |
+| `defaultSelected` | `string[]` | No | `[]` | Values pre-selected on mount |
+| `onChange` | `(selected: string[]) => void` | No | — | Called with the updated array of selected values after every toggle |
+| `disabled` | `boolean` | No | `false` | Prevents the dropdown from opening when `true` |
+
+## Option type
+
+```typescript
+interface Option {
+  value: string; // unique identifier used internally
+  text: string;  // display label shown in the dropdown and as a pill tag
+  selected: boolean; // initial selected state (not used internally; use defaultSelected instead)
+}
+```
+
+<Note>
+  The `selected` field on each `Option` object is part of the interface but is not read by the component. Use `defaultSelected` to set the initial selection.
+</Note>
+
+## Behaviour
+
+- Clicking an option in the dropdown **toggles** it — selecting it if not selected, deselecting it if already selected.
+- Each selected value appears as a pill tag with an ✕ button. Clicking ✕ removes that value.
+- The dropdown caret rotates 180° when the list is open.
+- Clicking inside the open dropdown list does not close it (`e.stopPropagation()`).
+
+## Source
+
+```tsx
+// src/components/form/MultiSelect.tsx
+import React, { useState } from "react";
+
+interface Option {
+  value: string;
+  text: string;
+  selected: boolean;
+}
+
+interface MultiSelectProps {
+  label: string;
+  options: Option[];
+  defaultSelected?: string[];
+  onChange?: (selected: string[]) => void;
+  disabled?: boolean;
+}
+
+const MultiSelect: React.FC<MultiSelectProps> = ({
+  label,
+  options,
+  defaultSelected = [],
+  onChange,
+  disabled = false,
+}) => {
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(defaultSelected);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleDropdown = () => {
+    if (disabled) return;
+    setIsOpen((prev) => !prev);
+  };
+
+  const handleSelect = (optionValue: string) => {
+    const newSelectedOptions = selectedOptions.includes(optionValue)
+      ? selectedOptions.filter((value) => value !== optionValue)
+      : [...selectedOptions, optionValue];
+    setSelectedOptions(newSelectedOptions);
+    if (onChange) onChange(newSelectedOptions);
+  };
+
+  const removeOption = (index: number, value: string) => {
+    const newSelectedOptions = selectedOptions.filter((opt) => opt !== value);
+    setSelectedOptions(newSelectedOptions);
+    if (onChange) onChange(newSelectedOptions);
+  };
+
+  // ... render
+};
+
+export default MultiSelect;
+```

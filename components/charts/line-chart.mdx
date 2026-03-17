@@ -1,0 +1,242 @@
+---
+title: "Line chart"
+description: "An area/line chart component built on ApexCharts that renders two series — Sales and Revenue — across monthly categories."
+---
+
+`LineChartOne` is a client-side chart component that uses `react-apexcharts` to render an area chart styled with gradient fills and smooth hover markers. It is dynamically imported to prevent server-side rendering issues with ApexCharts.
+
+<Note>
+  `LineChartOne` requires the `react-apexcharts` and `apexcharts` packages. Install them before use:
+
+  ```bash
+  npm install react-apexcharts apexcharts
+  ```
+</Note>
+
+## Import
+
+```tsx
+import LineChartOne from "@/components/charts/line/LineChartOne";
+```
+
+## Usage
+
+### Basic usage
+
+Drop `LineChartOne` inside any container. The chart fills its parent width and renders at a fixed height of `310px`.
+
+```tsx
+import ComponentCard from "@/components/common/ComponentCard";
+import LineChartOne from "@/components/charts/line/LineChartOne";
+
+export default function LineChartPage() {
+  return (
+    <ComponentCard title="Line Chart 1">
+      <LineChartOne />
+    </ComponentCard>
+  );
+}
+```
+
+### Route-level page
+
+The chart is used on the `/line-chart` admin page:
+
+```tsx
+// src/app/(admin)/(others-pages)/(chart)/line-chart/page.tsx
+import LineChartOne from "@/components/charts/line/LineChartOne";
+import ComponentCard from "@/components/common/ComponentCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+
+export default function LineChart() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Line Chart" />
+      <div className="space-y-6">
+        <ComponentCard title="Line Chart 1">
+          <LineChartOne />
+        </ComponentCard>
+      </div>
+    </div>
+  );
+}
+```
+
+## ApexCharts configuration
+
+The component defines an `ApexOptions` object that controls every visual aspect of the chart.
+
+### Chart type and dimensions
+
+| Option | Value | Description |
+|---|---|---|
+| `chart.type` | `"line"` | Declares the series type; rendered as `"area"` in `ReactApexChart` to enable gradient fill |
+| `chart.height` | `310` | Fixed pixel height |
+| `chart.fontFamily` | `"Outfit, sans-serif"` | Matches the dashboard's global font |
+| `chart.toolbar.show` | `false` | Hides the built-in download/zoom toolbar |
+
+### Stroke
+
+| Option | Value | Description |
+|---|---|---|
+| `stroke.curve` | `"straight"` | Draws straight lines between data points |
+| `stroke.width` | `[2, 2]` | 2px line width for both series |
+
+### Fill (gradient)
+
+```tsx
+fill: {
+  type: "gradient",
+  gradient: {
+    opacityFrom: 0.55,
+    opacityTo: 0,
+  },
+},
+```
+
+Produces a fade-out effect from 55% opacity at the data point down to 0% at the x-axis.
+
+### Markers
+
+| Option | Value | Description |
+|---|---|---|
+| `markers.size` | `0` | Hidden by default |
+| `markers.strokeColors` | `"#fff"` | White border on hover |
+| `markers.hover.size` | `6` | 6px dot appears on hover |
+
+### Grid
+
+```tsx
+grid: {
+  xaxis: { lines: { show: false } }, // no vertical grid lines
+  yaxis: { lines: { show: true } },  // horizontal grid lines visible
+},
+```
+
+### Axes
+
+The x-axis uses `type: "category"` with monthly labels from `"Jan"` to `"Dec"`. Both `axisBorder` and `axisTicks` are hidden. The y-axis displays labels in `#6B7280` at `12px`.
+
+### Tooltip
+
+Tooltips are enabled with `x.format: "dd MMM yyyy"`. The per-point x tooltip is disabled to avoid duplication.
+
+### Colors
+
+The two series use `["#465FFF", "#9CB9FF"]` — brand blue and a lighter tint.
+
+### Series data
+
+```tsx
+const series = [
+  {
+    name: "Sales",
+    data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+  },
+  {
+    name: "Revenue",
+    data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+  },
+];
+```
+
+## Source
+
+```tsx
+// src/components/charts/line/LineChartOne.tsx
+"use client";
+import React from "react";
+import { ApexOptions } from "apexcharts";
+import dynamic from "next/dynamic";
+
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
+
+export default function LineChartOne() {
+  const options: ApexOptions = {
+    legend: {
+      show: false,
+      position: "top",
+      horizontalAlign: "left",
+    },
+    colors: ["#465FFF", "#9CB9FF"],
+    chart: {
+      fontFamily: "Outfit, sans-serif",
+      height: 310,
+      type: "line",
+      toolbar: { show: false },
+    },
+    stroke: {
+      curve: "straight",
+      width: [2, 2],
+    },
+    fill: {
+      type: "gradient",
+      gradient: {
+        opacityFrom: 0.55,
+        opacityTo: 0,
+      },
+    },
+    markers: {
+      size: 0,
+      strokeColors: "#fff",
+      strokeWidth: 2,
+      hover: { size: 6 },
+    },
+    grid: {
+      xaxis: { lines: { show: false } },
+      yaxis: { lines: { show: true } },
+    },
+    dataLabels: { enabled: false },
+    tooltip: {
+      enabled: true,
+      x: { format: "dd MMM yyyy" },
+    },
+    xaxis: {
+      type: "category",
+      categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      tooltip: { enabled: false },
+    },
+    yaxis: {
+      labels: {
+        style: { fontSize: "12px", colors: ["#6B7280"] },
+      },
+      title: {
+        text: "",
+        style: { fontSize: "0px" },
+      },
+    },
+  };
+
+  const series = [
+    {
+      name: "Sales",
+      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+    },
+    {
+      name: "Revenue",
+      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+    },
+  ];
+
+  return (
+    <div className="max-w-full overflow-x-auto custom-scrollbar">
+      <div id="chartEight" className="min-w-[1000px]">
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="area"
+          height={310}
+        />
+      </div>
+    </div>
+  );
+}
+```
+
+<Tip>
+  The component passes `type="area"` to `ReactApexChart` (not `"line"`) so that ApexCharts renders the gradient fill beneath each line. The `options.chart.type` declaration is kept as `"line"` for internal ApexCharts type inference.
+</Tip>

@@ -1,0 +1,104 @@
+---
+title: "Avatar"
+description: "Circular user images in six sizes with optional online, offline, and busy status indicators. Includes a text-initials fallback component."
+---
+
+TailAdmin ships two avatar components:
+
+- **`Avatar`** — displays a user photo with an optional status dot.
+- **`AvatarText`** — renders initials in a consistently coloured circle when no photo is available.
+
+## Import
+
+```tsx
+import Avatar from "@/components/ui/avatar/Avatar";
+import AvatarText from "@/components/ui/avatar/AvatarText";
+```
+
+## Avatar
+
+### Sizes
+
+Six sizes are available via the `size` prop:
+
+```tsx
+<Avatar src="/images/user/user-01.jpg" size="xsmall" />  {/* 24×24 px */}
+<Avatar src="/images/user/user-01.jpg" size="small" />   {/* 32×32 px */}
+<Avatar src="/images/user/user-01.jpg" size="medium" />  {/* 40×40 px — default */}
+<Avatar src="/images/user/user-01.jpg" size="large" />   {/* 48×48 px */}
+<Avatar src="/images/user/user-01.jpg" size="xlarge" />  {/* 56×56 px */}
+<Avatar src="/images/user/user-01.jpg" size="xxlarge" /> {/* 64×64 px */}
+```
+
+### Status indicators
+
+```tsx
+{/* Online — green dot */}
+<Avatar src="/images/user/user-01.jpg" size="medium" status="online" />
+
+{/* Offline — red dot */}
+<Avatar src="/images/user/user-01.jpg" size="medium" status="offline" />
+
+{/* Busy — amber dot */}
+<Avatar src="/images/user/user-01.jpg" size="medium" status="busy" />
+
+{/* No indicator (default) */}
+<Avatar src="/images/user/user-01.jpg" size="medium" status="none" />
+```
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `src` | `string` | Yes | — | URL of the avatar image |
+| `alt` | `string` | No | `"User Avatar"` | Alt text for the image |
+| `size` | `"xsmall" \| "small" \| "medium" \| "large" \| "xlarge" \| "xxlarge"` | No | `"medium"` | Controls the width and height |
+| `status` | `"online" \| "offline" \| "busy" \| "none"` | No | `"none"` | Renders a colour-coded dot in the bottom-right corner |
+
+### Status colours
+
+| Status | Colour class |
+|---|---|
+| `online` | `bg-success-500` |
+| `offline` | `bg-error-400` |
+| `busy` | `bg-warning-500` |
+
+## AvatarText
+
+Renders up to two initials extracted from a full name, with a pastel background colour derived deterministically from the name string.
+
+```tsx
+<AvatarText name="John Doe" />
+<AvatarText name="Alice" className="h-12 w-12" />
+```
+
+### Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `name` | `string` | Yes | — | Full name; up to the first two words' initials are shown |
+| `className` | `string` | No | `""` | Additional Tailwind classes (e.g. to override the default `h-10 w-10` size) |
+
+<Note>
+The background and text colour are chosen automatically by hashing the name against 8 pastel colour pairs: brand, pink, cyan, orange, green, purple, yellow, and error.
+</Note>
+
+## Source
+
+```tsx
+// src/components/ui/avatar/Avatar.tsx
+interface AvatarProps {
+  src: string;
+  alt?: string;
+  size?: "xsmall" | "small" | "medium" | "large" | "xlarge" | "xxlarge";
+  status?: "online" | "offline" | "busy" | "none";
+}
+```
+
+```tsx
+// src/components/ui/avatar/AvatarText.tsx
+interface AvatarTextProps {
+  name: string;
+  className?: string;
+}
+```

@@ -1,97 +1,107 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "TailAdmin Next.js"
+description: "A free, open-source admin dashboard template built with Next.js 16, React 19, TypeScript, and Tailwind CSS v4."
 ---
 
-## Setting up
-
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get your admin dashboard running in under 5 minutes with step-by-step setup instructions.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Project Structure" icon="folder-tree" href="/project-structure">
+    Understand how TailAdmin is organized so you can navigate and extend it confidently.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Components" icon="puzzle-piece" href="/components/dashboard/ecommerce">
+    Explore the full library of UI components, charts, forms, and tables.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Customization" icon="palette" href="/guides/customization">
+    Learn how to adapt TailAdmin to your brand and project requirements.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## What is TailAdmin?
 
-Everything you need to create world-class documentation.
+TailAdmin is a production-ready admin dashboard template that gives you everything you need to build a back-end panel or admin interface without starting from scratch. It combines **Next.js 16** App Router, **React 19**, **TypeScript**, and **Tailwind CSS v4** into a cohesive, well-structured starting point.
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+The free version ships with one fully featured ecommerce dashboard, 30+ dashboard components, 50+ UI elements, authentication pages, and all the building blocks you need to create a professional admin panel.
 
-## Need inspiration?
+## Key features
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+<CardGroup cols={3}>
+  <Card title="Ecommerce Dashboard" icon="chart-line">
+    Metrics, monthly sales chart, target progress ring, statistics chart, recent orders table, and demographic world map — all pre-wired.
+  </Card>
+  <Card title="ApexCharts Integration" icon="chart-bar">
+    Responsive line and bar charts powered by ApexCharts for React, with light and dark mode support.
+  </Card>
+  <Card title="Collapsible Sidebar" icon="sidebar">
+    Icon-only collapse, hover-to-expand, and mobile drawer — all handled by `SidebarContext`.
+  </Card>
+  <Card title="Dark Mode" icon="moon">
+    System-aware dark mode toggle using `ThemeContext` and Tailwind's `dark:` variant classes.
+  </Card>
+  <Card title="Auth Pages" icon="lock">
+    Sign In and Sign Up pages built with Next.js Server Actions and App Router layout nesting.
+  </Card>
+  <Card title="Form Components" icon="input-text">
+    Input, Select, MultiSelect, DatePicker (Flatpickr), Switch, and grouped inputs — all styled with Tailwind.
+  </Card>
+  <Card title="UI Elements" icon="shapes">
+    Alerts, Avatars, Badges, Buttons, Images, Videos, Modals, and Dropdowns — ready to drop in.
+  </Card>
+  <Card title="FullCalendar" icon="calendar">
+    Interactive calendar page with day, week, list, and time-grid views via `@fullcalendar/react`.
+  </Card>
+  <Card title="TypeScript Throughout" icon="code">
+    Fully typed components and contexts — no `any` shortcuts, real interfaces everywhere.
+  </Card>
+</CardGroup>
+
+## Technology stack
+
+| Technology | Version | Role |
+|---|---|---|
+| Next.js | 16.x | App Router, SSR, Server Actions |
+| React | 19.x | Component model |
+| TypeScript | 5.x | Type safety |
+| Tailwind CSS | v4 | Utility-first styling |
+| ApexCharts | 4.x | Data visualization |
+| FullCalendar | 6.x | Calendar component |
+| Flatpickr | 4.x | Date picking |
+| jVectorMap | — | World map component |
+
+## Free vs Pro
+
+<CardGroup cols={2}>
+  <Card title="Free Version" icon="gift">
+    **What's included:**
+    - 1 unique ecommerce dashboard
+    - 30+ dashboard components
+    - 50+ UI elements
+    - Basic Figma design file
+    - Community support via GitHub Issues
+  </Card>
+  <Card title="Pro Version" icon="star" href="https://tailadmin.com/pricing">
+    **What you get:**
+    - 7 unique dashboards (Analytics, Ecommerce, Marketing, CRM, SaaS, Stocks, Logistics)
+    - 500+ dashboard components and UI elements
+    - Complete Figma design file
+    - Priority email support
+  </Card>
+</CardGroup>
+
+## Useful links
+
+<CardGroup cols={2}>
+  <Card title="Live Demo" icon="eye" href="https://nextjs-free-demo.tailadmin.com">
+    See the free version running live.
+  </Card>
+  <Card title="GitHub Repository" icon="github" href="https://github.com/TailAdmin/free-nextjs-admin-dashboard">
+    Star the repo, open issues, or contribute.
+  </Card>
+  <Card title="Figma Community File" icon="figma" href="https://www.figma.com/community/file/1463141366275764364">
+    Open the community edition design file.
+  </Card>
+  <Card title="Pro Pricing" icon="credit-card" href="https://tailadmin.com/pricing">
+    Upgrade for 500+ components and 7 dashboards.
+  </Card>
+</CardGroup>

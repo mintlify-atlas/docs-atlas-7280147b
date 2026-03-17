@@ -1,0 +1,258 @@
+---
+title: "Sign in"
+description: "Full-width authentication page with email/password login, social sign-in buttons, and a password visibility toggle. Rendered outside the admin shell using the (full-width-pages)/(auth) route group."
+---
+
+The sign-in page lives at `/signin` and is served by `src/app/(full-width-pages)/(auth)/signin/page.tsx`. It renders the `SignInForm` component inside the `AuthLayout`, which shows a branded panel on the right-hand side on large screens and a floating theme toggler.
+
+<Note>
+Because this page is inside the `(full-width-pages)` route group, it renders without the admin sidebar or header. The `AuthLayout` (`src/app/(full-width-pages)/(auth)/layout.tsx`) provides its own full-screen two-column layout.
+</Note>
+
+## Page file
+
+```tsx
+// src/app/(full-width-pages)/(auth)/signin/page.tsx
+import SignInForm from "@/components/auth/SignInForm";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Next.js SignIn Page | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Signin Page TailAdmin Dashboard Template",
+};
+
+export default function SignIn() {
+  return <SignInForm />;
+}
+```
+
+## Auth layout
+
+Both sign-in and sign-up pages share `src/app/(full-width-pages)/(auth)/layout.tsx`. The layout splits the viewport into two halves: the form fills the left side, and a dark brand-coloured panel with the TailAdmin logo occupies the right side on large screens.
+
+```tsx
+// src/app/(full-width-pages)/(auth)/layout.tsx
+import GridShape from "@/components/common/GridShape";
+import ThemeTogglerTwo from "@/components/common/ThemeTogglerTwo";
+import { ThemeProvider } from "@/context/ThemeContext";
+import Image from "next/image";
+import Link from "next/link";
+import React from "react";
+
+export default function AuthLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
+      <ThemeProvider>
+        <div className="relative flex lg:flex-row w-full h-screen justify-center flex-col dark:bg-gray-900 sm:p-0">
+          {children}
+          <div className="lg:w-1/2 w-full h-full bg-brand-950 dark:bg-white/5 lg:grid items-center hidden">
+            <div className="relative items-center justify-center flex z-1">
+              <GridShape />
+              <div className="flex flex-col items-center max-w-xs">
+                <Link href="/" className="block mb-4">
+                  <Image
+                    width={231}
+                    height={48}
+                    src="./images/logo/auth-logo.svg"
+                    alt="Logo"
+                  />
+                </Link>
+                <p className="text-center text-gray-400 dark:text-white/60">
+                  Free and Open-Source Tailwind CSS Admin Dashboard Template
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="fixed bottom-6 right-6 z-50 hidden sm:block">
+            <ThemeTogglerTwo />
+          </div>
+        </div>
+      </ThemeProvider>
+    </div>
+  );
+}
+```
+
+## SignInForm component
+
+The form is a `"use client"` component located at `src/components/auth/SignInForm.tsx`. It manages two pieces of local state: whether the password field is visible (`showPassword`) and whether the "Keep me logged in" checkbox is checked (`isChecked`).
+
+### What the form includes
+
+<CardGroup cols={2}>
+  <Card title="Social sign-in" icon="right-to-bracket">
+    Two buttons — Sign in with Google and Sign in with X — displayed in a two-column grid above the credential form.
+  </Card>
+  <Card title="Email field" icon="envelope">
+    A required email input using the shared `Input` and `Label` components.
+  </Card>
+  <Card title="Password field" icon="lock">
+    A required password input with an inline eye icon toggle that switches between `type="password"` and `type="text"`.
+  </Card>
+  <Card title="Remember me + forgot password" icon="key">
+    A `Checkbox` component labelled "Keep me logged in" and a link to `/reset-password`.
+  </Card>
+</CardGroup>
+
+### Full source
+
+```tsx
+// src/components/auth/SignInForm.tsx
+"use client";
+import Checkbox from "@/components/form/input/Checkbox";
+import Input from "@/components/form/input/InputField";
+import Label from "@/components/form/Label";
+import Button from "@/components/ui/button/Button";
+import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
+import Link from "next/link";
+import React, { useState } from "react";
+
+export default function SignInForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  return (
+    <div className="flex flex-col flex-1 lg:w-1/2 w-full">
+      <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+        >
+          <ChevronLeftIcon />
+          Back to dashboard
+        </Link>
+      </div>
+      <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
+        <div>
+          <div className="mb-5 sm:mb-8">
+            <h1 className="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+              Sign In
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Enter your email and password to sign in!
+            </p>
+          </div>
+          <div>
+            {/* Social buttons */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
+              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                {/* Google SVG icon */}
+                Sign in with Google
+              </button>
+              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+                {/* X SVG icon */}
+                Sign in with X
+              </button>
+            </div>
+            {/* Divider */}
+            <div className="relative py-3 sm:py-5">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="p-2 text-gray-400 bg-white dark:bg-gray-900 sm:px-5 sm:py-2">
+                  Or
+                </span>
+              </div>
+            </div>
+            <form>
+              <div className="space-y-6">
+                <div>
+                  <Label>
+                    Email <span className="text-error-500">*</span>
+                  </Label>
+                  <Input placeholder="info@gmail.com" type="email" />
+                </div>
+                <div>
+                  <Label>
+                    Password <span className="text-error-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter your password"
+                    />
+                    <span
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+                    >
+                      {showPassword ? (
+                        <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+                      ) : (
+                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Checkbox checked={isChecked} onChange={setIsChecked} />
+                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                      Keep me logged in
+                    </span>
+                  </div>
+                  <Link
+                    href="/reset-password"
+                    className="text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div>
+                  <Button className="w-full" size="sm">
+                    Sign in
+                  </Button>
+                </div>
+              </div>
+            </form>
+            <div className="mt-5">
+              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+                Don&apos;t have an account?{" "}
+                <Link
+                  href="/signup"
+                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                >
+                  Sign Up
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Customising the sign-in flow
+
+<Steps>
+  <Step title="Connect a real auth provider">
+    The `<form>` element currently has no `action` or `onSubmit` handler. Add your authentication logic — for example, using [NextAuth.js](https://next-auth.js.org/) `signIn()` or a custom server action — to the `<form>` tag.
+
+    ```tsx
+    // Using a Next.js Server Action
+    import { signInAction } from "@/actions/auth";
+
+    <form action={signInAction}>
+      {/* existing fields */}
+    </form>
+    ```
+  </Step>
+  <Step title="Wire up the social buttons">
+    Replace the placeholder `<button>` elements with calls to your auth provider's OAuth flow, e.g. `signIn('google')` or `signIn('twitter')` when using NextAuth.
+  </Step>
+  <Step title="Add validation">
+    Install a library such as `react-hook-form` + `zod` and wrap the inputs. The `Input` component accepts a standard `ref` prop and is compatible with `register()` from react-hook-form.
+  </Step>
+  <Step title="Handle the redirect">
+    After a successful sign-in, redirect users with `redirect('/')` inside a server action, or `router.push('/')` from a client component using `useRouter`.
+  </Step>
+</Steps>
+
+<Tip>
+To add a third social provider button, duplicate one of the existing `<button>` elements in the grid and replace the SVG icon and label. The two-column `grid-cols-2` layout accommodates up to two buttons per row — add more by adjusting the grid class.
+</Tip>

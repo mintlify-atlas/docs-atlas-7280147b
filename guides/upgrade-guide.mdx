@@ -1,0 +1,165 @@
+---
+title: "Upgrade guide"
+description: "How to upgrade TailAdmin from one version to another, including the v1.x to v2.0 breaking-change migration."
+---
+
+## General upgrade workflow
+
+<Steps>
+  <Step title="Pull the latest changes">
+    If you cloned the repository, fetch the latest commits:
+
+    ```bash
+    git fetch origin
+    git pull origin main
+    ```
+
+    If you downloaded a release archive, replace your source files with the new version, taking care not to overwrite your customizations.
+  </Step>
+
+  <Step title="Install updated dependencies">
+    ```bash
+    npm install
+    ```
+
+    Run this every time you pull — dependency versions in `package.json` may have changed. If you see a peer-dependency error, add `--legacy-peer-deps`:
+
+    ```bash
+    npm install --legacy-peer-deps
+    ```
+  </Step>
+
+  <Step title="Check for breaking changes">
+    Review the [changelog](/guides/changelog) for the versions between your current version and the target version. Pay particular attention to **Breaking changes** sections.
+  </Step>
+
+  <Step title="Test the application">
+    Start the development server and verify that your customizations still work:
+
+    ```bash
+    npm run dev
+    ```
+
+    Run the linter to catch any TypeScript or ESLint errors introduced by the upgrade:
+
+    ```bash
+    npm run lint
+    ```
+  </Step>
+
+  <Step title="Build for production">
+    Run a production build before deploying to catch any remaining issues:
+
+    ```bash
+    npm run build
+    ```
+  </Step>
+</Steps>
+
+## Migrating from v1.x to v2.0
+
+Version 2.0.0 is a major release with breaking changes. A fresh clone and a careful migration of your customizations is the recommended approach.
+
+### Next.js 14 → Next.js 16
+
+TailAdmin v2.0 upgraded from Next.js 14 to Next.js 16. The App Router APIs are compatible between these versions, but review the [Next.js upgrade guide](https://nextjs.org/docs/app/building-your-application/upgrading) for any changes that affect your codebase.
+
+Key differences to be aware of:
+
+- **`next/font`** usage is unchanged.
+- **Metadata API** (`export const metadata`) is unchanged.
+- **Server Actions** (`"use server"`) are now the standard pattern for form submissions and mutations. The v1 authentication forms used client-side logic; v2 uses Server Actions and middleware for route protection.
+
+### Chart library change
+
+In v1.x, charts were rendered by a different library. In v2.0, all charts use **ApexCharts for React** (`react-apexcharts` + `apexcharts`).
+
+If you built custom charts on top of the v1 library, you need to rewrite them using the ApexCharts API. The existing chart components in `src/components/charts/` and `src/components/ecommerce/` are good reference examples:
+
+```tsx
+// src/components/charts/line/LineChartOne.tsx
+"use client";
+import React from "react";
+import ReactApexChart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
+```
+
+Refer to the [ApexCharts documentation](https://apexcharts.com/docs/react-charts/) for the full API.
+
+### Authentication flow
+
+In v2.0, the authentication flow uses **Next.js Server Actions** and **middleware** for route protection. If you extended the v1 authentication:
+
+- Sign-in and sign-up logic now lives in Server Action files rather than client-side event handlers.
+- Route protection is handled in `middleware.ts` at the project root rather than in component-level checks.
+
+Review the sign-in and sign-up page components in `src/components/auth/` and `src/app/(auth)/` for the updated patterns.
+
+### App Router route group structure
+
+The route group structure was reorganized in v2.0:
+
+| v1.x path | v2.0 path |
+|---|---|
+| `src/app/(dashboard)/` | `src/app/(admin)/` |
+| `src/layouts/` | `src/layout/` |
+
+If you added pages inside the old `(dashboard)` route group, move them to `src/app/(admin)/`.
+
+## Migrating from Tailwind CSS v3 to v4 (v2.0.1)
+
+Version 2.0.1 upgraded Tailwind CSS from v3 to v4. The configuration model changed significantly.
+
+### What changed
+
+| v3 | v4 |
+|---|---|
+| Configuration in `tailwind.config.js` | Configuration in `globals.css` via `@theme` |
+| `theme.extend` in config | CSS custom properties under `@theme` |
+| `darkMode: 'class'` in config | `@custom-variant dark (&:is(.dark *))` in CSS |
+| PostCSS plugin `tailwindcss` | PostCSS plugin `@tailwindcss/postcss` |
+
+### Migration steps
+
+<Steps>
+  <Step title="Remove tailwind.config.js">
+    The file is no longer used. All configuration moves to `src/app/globals.css`.
+  </Step>
+
+  <Step title="Update postcss.config.js">
+    Replace the `tailwindcss` PostCSS plugin with `@tailwindcss/postcss`:
+
+    ```javascript
+    // postcss.config.js
+    module.exports = {
+      plugins: {
+        '@tailwindcss/postcss': {},
+        autoprefixer: {},
+      },
+    };
+    ```
+  </Step>
+
+  <Step title="Move theme tokens to @theme in globals.css">
+    Any custom colors, fonts, or spacing you defined in `tailwind.config.js` must be moved to the `@theme` block in `globals.css`:
+
+    ```css
+    @import 'tailwindcss';
+
+    @theme {
+      --color-brand-500: #465fff;
+      --font-outfit: Outfit, sans-serif;
+    }
+    ```
+  </Step>
+
+  <Step title="Replace deprecated class names">
+    Some utility class names changed between v3 and v4. Run the official Tailwind upgrade tool to apply automated fixes:
+
+    ```bash
+    npx @tailwindcss/upgrade
+    ```
+
+    Then review and test the result. See the [Tailwind CSS v4 migration guide](https://tailwindcss.com/docs/upgrade-guide) for the complete list of changes.
+  </Step>
+</Steps>

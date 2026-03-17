@@ -1,0 +1,209 @@
+---
+title: "Input"
+description: "A styled text input component with support for error, success, and disabled states, optional hint text, and all standard HTML input attributes."
+---
+
+The `Input` component (`src/components/form/input/InputField.tsx`) wraps a native `<input>` element with Tailwind-based state styling, dark-mode support, and an optional hint message.
+
+## Import
+
+```tsx
+import Input from "@/components/form/input/InputField";
+```
+
+## Usage
+
+### Basic input
+
+```tsx
+import Label from "@/components/form/Label";
+import Input from "@/components/form/input/InputField";
+
+<Label htmlFor="name">Name</Label>
+<Input id="name" type="text" />
+```
+
+### With placeholder
+
+```tsx
+<Label>Email</Label>
+<Input type="text" placeholder="info@example.com" />
+```
+
+### Password with visibility toggle
+
+```tsx
+"use client";
+import { useState } from "react";
+import { EyeIcon, EyeCloseIcon } from "@/icons";
+import Input from "@/components/form/input/InputField";
+
+export default function PasswordField() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="relative">
+      <Input
+        type={showPassword ? "text" : "password"}
+        placeholder="Enter your password"
+      />
+      <button
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
+      >
+        {showPassword ? (
+          <EyeIcon className="fill-gray-500 dark:fill-gray-400" />
+        ) : (
+          <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400" />
+        )}
+      </button>
+    </div>
+  );
+}
+```
+
+### Error state
+
+When `error` is `true`, the border turns red and any `hint` text renders in the error colour.
+
+```tsx
+<Label>Email</Label>
+<Input
+  type="email"
+  error={true}
+  hint="This is an invalid email address."
+  placeholder="Enter your email"
+/>
+```
+
+### Success state
+
+```tsx
+<Label>Email</Label>
+<Input
+  type="email"
+  success={true}
+  hint="Valid email!"
+  placeholder="Enter your email"
+/>
+```
+
+### Disabled state
+
+```tsx
+<Label>Email</Label>
+<Input
+  type="text"
+  defaultValue="disabled@example.com"
+  disabled={true}
+  hint="This field is disabled."
+/>
+```
+
+### With icon prefix
+
+Use a relative wrapper and position an icon absolutely to add a leading icon:
+
+```tsx
+import { EnvelopeIcon } from "@/icons";
+
+<div className="relative">
+  <Input
+    placeholder="info@example.com"
+    type="text"
+    className="pl-[62px]"
+  />
+  <span className="absolute left-0 top-1/2 -translate-y-1/2 border-r border-gray-200 px-3.5 py-3 text-gray-500 dark:border-gray-800 dark:text-gray-400">
+    <EnvelopeIcon />
+  </span>
+</div>
+```
+
+### Time input
+
+```tsx
+import { TimeIcon } from "@/icons";
+
+<div className="relative">
+  <Input
+    type="time"
+    id="tm"
+    name="tm"
+    onChange={(e) => console.log(e.target.value)}
+  />
+  <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+    <TimeIcon />
+  </span>
+</div>
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `type` | `"text" \| "number" \| "email" \| "password" \| "date" \| "time" \| string` | `"text"` | Native input type |
+| `id` | `string` | — | Element ID for label association |
+| `name` | `string` | — | Input name for form submission |
+| `placeholder` | `string` | — | Placeholder text shown when the field is empty |
+| `defaultValue` | `string \| number` | — | Uncontrolled initial value |
+| `onChange` | `(e: React.ChangeEvent<HTMLInputElement>) => void` | — | Change event handler |
+| `className` | `string` | `""` | Additional Tailwind classes merged onto the `<input>` |
+| `min` | `string` | — | Minimum value for `number` and `date` inputs |
+| `max` | `string` | — | Maximum value for `number` and `date` inputs |
+| `step` | `number` | — | Step interval for `number` inputs |
+| `disabled` | `boolean` | `false` | Renders the field as non-interactive with reduced opacity |
+| `success` | `boolean` | `false` | Applies green border and text colour |
+| `error` | `boolean` | `false` | Applies red border and text colour |
+| `hint` | `string` | — | Helper text shown below the input; colour follows the active state |
+
+## State styles
+
+| State | Border | Text colour | Hint colour |
+|---|---|---|---|
+| Default | `border-gray-300` → `focus:border-brand-300` | `text-gray-800` | `text-gray-500` |
+| Error | `border-error-500` | `text-error-800` | `text-error-500` |
+| Success | `border-success-400` | `text-success-500` | `text-success-500` |
+| Disabled | `border-gray-300` | `text-gray-500` | `text-gray-500` |
+
+## Label component
+
+Use the companion `Label` component to associate a visible label with any input:
+
+```tsx
+import Label from "@/components/form/Label";
+
+<Label htmlFor="email">Email address</Label>
+<Input id="email" type="email" />
+```
+
+**Label props:**
+
+| Prop | Type | Description |
+|---|---|---|
+| `htmlFor` | `string` | Maps to the `for` attribute, linking the label to an input by ID |
+| `children` | `ReactNode` | Label text or content |
+| `className` | `string` | Additional classes; merged via `tailwind-merge` |
+
+Default label styling: `mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400`.
+
+## Source
+
+```tsx
+// src/components/form/input/InputField.tsx
+interface InputProps {
+  type?: "text" | "number" | "email" | "password" | "date" | "time" | string;
+  id?: string;
+  name?: string;
+  placeholder?: string;
+  defaultValue?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  className?: string;
+  min?: string;
+  max?: string;
+  step?: number;
+  disabled?: boolean;
+  success?: boolean;
+  error?: boolean;
+  hint?: string;
+}
+```

@@ -1,0 +1,197 @@
+---
+title: "Basic tables"
+description: "A structured data table component built from TailAdmin's composable table primitives, featuring user avatars, team stacks, status badges, and a Pagination helper."
+---
+
+TailAdmin provides a set of composable table primitives (`Table`, `TableHeader`, `TableBody`, `TableRow`, `TableCell`) and a pre-built `BasicTableOne` component that demonstrates a realistic data table layout with user info, project name, team member avatars, status badges, and budget figures.
+
+## Import
+
+```tsx
+import BasicTableOne from "@/components/tables/BasicTableOne";
+```
+
+## Usage
+
+### Basic usage
+
+```tsx
+import ComponentCard from "@/components/common/ComponentCard";
+import BasicTableOne from "@/components/tables/BasicTableOne";
+
+export default function BasicTables() {
+  return (
+    <ComponentCard title="Basic Table 1">
+      <BasicTableOne />
+    </ComponentCard>
+  );
+}
+```
+
+### Route-level page
+
+```tsx
+// src/app/(admin)/(others-pages)/(tables)/basic-tables/page.tsx
+import ComponentCard from "@/components/common/ComponentCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import BasicTableOne from "@/components/tables/BasicTableOne";
+
+export default function BasicTables() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Basic Table" />
+      <div className="space-y-6">
+        <ComponentCard title="Basic Table 1">
+          <BasicTableOne />
+        </ComponentCard>
+      </div>
+    </div>
+  );
+}
+```
+
+## Data structure
+
+`BasicTableOne` uses the following `Order` interface for its internal `tableData` array:
+
+```typescript
+interface Order {
+  id: number;
+  user: {
+    image: string; // path to user avatar
+    name: string;
+    role: string;
+  };
+  projectName: string;
+  team: {
+    images: string[]; // paths to team member avatars
+  };
+  status: string; // "Active" | "Pending" | "Cancel"
+  budget: string; // e.g. "3.9K"
+}
+```
+
+## Table primitives
+
+`BasicTableOne` composes the following low-level primitives from `@/components/ui/table`:
+
+| Primitive | Description |
+|---|---|
+| `Table` | Root `<table>` element with `w-full table-auto` layout |
+| `TableHeader` | `<thead>` wrapper |
+| `TableBody` | `<tbody>` wrapper with `divide-y` row separators |
+| `TableRow` | `<tr>` element |
+| `TableCell` | `<td>` or `<th>` element; pass `isHeader` for header cells |
+
+### `TableCell` props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `isHeader` | `boolean` | `false` | Renders as `<th>` when `true`, `<td>` otherwise |
+| `className` | `string` | — | Additional Tailwind classes |
+| `children` | `ReactNode` | — | Cell content |
+
+## Column layout
+
+| Column | Content |
+|---|---|
+| **User** | 40×40 avatar image + name (bold) + role (muted) |
+| **Project Name** | Plain text |
+| **Team** | Overlapping 24×24 avatar stack (`-space-x-2`) |
+| **Status** | `Badge` component — `success` for Active, `warning` for Pending, `error` for Cancel |
+| **Budget** | Plain text |
+
+## Badge mapping
+
+```tsx
+<Badge
+  size="sm"
+  color={
+    order.status === "Active"
+      ? "success"
+      : order.status === "Pending"
+      ? "warning"
+      : "error"
+  }
+>
+  {order.status}
+</Badge>
+```
+
+## Pagination component
+
+TailAdmin also includes a standalone `Pagination` component at `src/components/tables/Pagination.tsx` for adding page controls to any table.
+
+```tsx
+import Pagination from "@/components/tables/Pagination";
+
+<Pagination
+  currentPage={currentPage}
+  totalPages={totalPages}
+  onPageChange={(page) => setCurrentPage(page)}
+/>
+```
+
+### Pagination props
+
+| Prop | Type | Required | Description |
+|---|---|---|---|
+| `currentPage` | `number` | Yes | The currently active page (1-indexed) |
+| `totalPages` | `number` | Yes | Total number of pages |
+| `onPageChange` | `(page: number) => void` | Yes | Called with the new page number when Previous, Next, or a page button is clicked |
+
+The component renders a **Previous** button, up to three page number buttons centred on the current page with ellipsis indicators, and a **Next** button. The active page button is highlighted with `bg-brand-500 text-white`.
+
+## Source
+
+```tsx
+// src/components/tables/BasicTableOne.tsx
+import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import Badge from "../ui/badge/Badge";
+import Image from "next/image";
+
+interface Order {
+  id: number;
+  user: { image: string; name: string; role: string };
+  projectName: string;
+  team: { images: string[] };
+  status: string;
+  budget: string;
+}
+
+export default function BasicTableOne() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+      <div className="max-w-full overflow-x-auto">
+        <div className="min-w-[1102px]">
+          <Table>
+            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+              <TableRow>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">User</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Project Name</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Team</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Status</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Budget</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+              {tableData.map((order) => (
+                <TableRow key={order.id}>
+                  {/* ... cells */}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </div>
+  );
+}
+```

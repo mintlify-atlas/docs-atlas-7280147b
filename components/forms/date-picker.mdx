@@ -1,0 +1,188 @@
+---
+title: "Date picker"
+description: "A Flatpickr-powered date picker component with label, calendar icon, and support for single, multiple, range, and time selection modes."
+---
+
+The `DatePicker` component (`src/components/form/date-picker.tsx`) initialises a [Flatpickr](https://flatpickr.js.org/) instance on a hidden input element. It renders a styled visible input with an absolutely positioned calendar icon and an optional `Label`.
+
+<Note>
+  `DatePicker` requires `flatpickr`. Install it before use:
+
+  ```bash
+  npm install flatpickr
+  ```
+
+  The component also imports `flatpickr/dist/flatpickr.css` for base styles.
+</Note>
+
+## Import
+
+```tsx
+import DatePicker from "@/components/form/date-picker";
+```
+
+## Usage
+
+### Basic date picker
+
+```tsx
+<DatePicker
+  id="start-date"
+  label="Start date"
+  placeholder="Select a date"
+/>
+```
+
+### With onChange handler
+
+```tsx
+<DatePicker
+  id="date-picker"
+  label="Date Picker Input"
+  placeholder="Select a date"
+  onChange={(dates, currentDateString) => {
+    console.log({ dates, currentDateString });
+  }}
+/>
+```
+
+### Pre-selected default date
+
+```tsx
+<DatePicker
+  id="dob"
+  label="Date of birth"
+  placeholder="YYYY-MM-DD"
+  defaultDate="1990-06-15"
+/>
+```
+
+### Range mode
+
+```tsx
+<DatePicker
+  id="date-range"
+  label="Date range"
+  placeholder="Select a range"
+  mode="range"
+/>
+```
+
+### Multiple selection
+
+```tsx
+<DatePicker
+  id="multi-date"
+  label="Multiple dates"
+  placeholder="Select dates"
+  mode="multiple"
+/>
+```
+
+### Time picker
+
+```tsx
+<DatePicker
+  id="appt-time"
+  label="Appointment time"
+  placeholder="Select a time"
+  mode="time"
+/>
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `id` | `string` | Yes | — | DOM element ID. Flatpickr attaches to `#${id}` |
+| `mode` | `"single" \| "multiple" \| "range" \| "time"` | No | `"single"` | Flatpickr selection mode |
+| `onChange` | `Hook \| Hook[]` | No | — | Flatpickr `onChange` callback. Receives `(selectedDates, dateStr, instance)` |
+| `defaultDate` | `DateOption` | No | — | Pre-selected date on mount. Accepts a date string, timestamp, `Date` object, or Flatpickr `DateOption` |
+| `label` | `string` | No | — | Visible label rendered above the input via the `Label` component |
+| `placeholder` | `string` | No | — | Placeholder text for the visible input field |
+
+## Flatpickr configuration
+
+The component initialises Flatpickr with the following fixed options:
+
+| Option | Value | Description |
+|---|---|---|
+| `static` | `true` | Renders the calendar inline below the input rather than in a portal |
+| `monthSelectorType` | `"static"` | Disables the animated month selector |
+| `dateFormat` | `"Y-m-d"` | Output format: `2025-06-15` |
+
+## Cleanup
+
+The component destroys the Flatpickr instance when it unmounts, preventing memory leaks:
+
+```tsx
+return () => {
+  if (!Array.isArray(flatPickr)) {
+    flatPickr.destroy();
+  }
+};
+```
+
+## Source
+
+```tsx
+// src/components/form/date-picker.tsx
+import { useEffect } from 'react';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.css';
+import Label from './Label';
+import { CalenderIcon } from '../../icons';
+import Hook = flatpickr.Options.Hook;
+import DateOption = flatpickr.Options.DateOption;
+
+type PropsType = {
+  id: string;
+  mode?: "single" | "multiple" | "range" | "time";
+  onChange?: Hook | Hook[];
+  defaultDate?: DateOption;
+  label?: string;
+  placeholder?: string;
+};
+
+export default function DatePicker({
+  id,
+  mode,
+  onChange,
+  label,
+  defaultDate,
+  placeholder,
+}: PropsType) {
+  useEffect(() => {
+    const flatPickr = flatpickr(`#${id}`, {
+      mode: mode || "single",
+      static: true,
+      monthSelectorType: "static",
+      dateFormat: "Y-m-d",
+      defaultDate,
+      onChange,
+    });
+
+    return () => {
+      if (!Array.isArray(flatPickr)) {
+        flatPickr.destroy();
+      }
+    };
+  }, [mode, onChange, id, defaultDate]);
+
+  return (
+    <div>
+      {label && <Label htmlFor={id}>{label}</Label>}
+      <div className="relative">
+        <input
+          id={id}
+          placeholder={placeholder}
+          className="h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 bg-transparent text-gray-800 border-gray-300 focus:border-brand-300 focus:ring-brand-500/20 dark:border-gray-700 dark:focus:border-brand-800"
+        />
+        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+          <CalenderIcon className="size-6" />
+        </span>
+      </div>
+    </div>
+  );
+}
+```

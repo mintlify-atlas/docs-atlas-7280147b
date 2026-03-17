@@ -1,0 +1,106 @@
+---
+title: "Buttons"
+description: "A flexible button component with two variants (primary and outline), two sizes, support for leading and trailing icons, and a disabled state."
+---
+
+## Import
+
+```tsx
+import Button from "@/components/ui/button/Button";
+```
+
+## Variants
+
+### Primary
+
+Solid brand-colour button — the main call-to-action style.
+
+```tsx
+<Button size="sm" variant="primary">Button Text</Button>
+<Button size="md" variant="primary">Button Text</Button>
+```
+
+### Outline (secondary)
+
+White background with a gray ring — use for secondary actions.
+
+```tsx
+<Button size="sm" variant="outline">Button Text</Button>
+<Button size="md" variant="outline">Button Text</Button>
+```
+
+## With icons
+
+### Left icon
+
+```tsx
+import { BoxIcon } from "@/icons";
+
+<Button size="sm" variant="primary" startIcon={<BoxIcon />}>Button Text</Button>
+<Button size="md" variant="primary" startIcon={<BoxIcon />}>Button Text</Button>
+
+<Button size="sm" variant="outline" startIcon={<BoxIcon />}>Button Text</Button>
+<Button size="md" variant="outline" startIcon={<BoxIcon />}>Button Text</Button>
+```
+
+### Right icon
+
+```tsx
+<Button size="sm" variant="primary" endIcon={<BoxIcon />}>Button Text</Button>
+<Button size="md" variant="primary" endIcon={<BoxIcon />}>Button Text</Button>
+
+<Button size="sm" variant="outline" endIcon={<BoxIcon />}>Button Text</Button>
+<Button size="md" variant="outline" endIcon={<BoxIcon />}>Button Text</Button>
+```
+
+## Disabled state
+
+```tsx
+<Button variant="primary" disabled>Button Text</Button>
+```
+
+When `disabled` is `true` the button receives `cursor-not-allowed opacity-50` and the native `disabled` attribute.
+
+## Click handler
+
+```tsx
+<Button variant="primary" onClick={() => console.log("clicked")}>
+  Button Text
+</Button>
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `children` | `ReactNode` | Yes | — | Button label or content |
+| `variant` | `"primary" \| "outline"` | No | `"primary"` | Visual style of the button |
+| `size` | `"sm" \| "md"` | No | `"md"` | Controls padding; `sm` is `px-4 py-3`, `md` is `px-5 py-3.5` |
+| `startIcon` | `ReactNode` | No | — | Icon rendered to the left of the label |
+| `endIcon` | `ReactNode` | No | — | Icon rendered to the right of the label |
+| `onClick` | `() => void` | No | — | Click handler |
+| `disabled` | `boolean` | No | `false` | Disables the button and applies reduced-opacity styling |
+| `className` | `string` | No | `""` | Additional Tailwind classes merged onto the button element |
+
+## Variant styles
+
+| Variant | Background | Text | Hover | Disabled |
+|---|---|---|---|---|
+| `primary` | `bg-brand-500` | `text-white` | `hover:bg-brand-600` | `disabled:bg-brand-300` |
+| `outline` | `bg-white` / `dark:bg-gray-800` | `text-gray-700` | `hover:bg-gray-50` | — |
+
+## Source
+
+```tsx
+// src/components/ui/button/Button.tsx
+interface ButtonProps {
+  children: ReactNode;
+  size?: "sm" | "md";
+  variant?: "primary" | "outline";
+  startIcon?: ReactNode;
+  endIcon?: ReactNode;
+  onClick?: () => void;
+  disabled?: boolean;
+  className?: string;
+}
+```

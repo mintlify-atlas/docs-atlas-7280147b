@@ -1,0 +1,131 @@
+---
+title: "Project structure"
+description: "An overview of how the TailAdmin codebase is organised and what each directory contains."
+---
+
+## Directory overview
+
+```
+free-nextjs-admin-dashboard/
+├── public/                      # Static assets served at the root URL
+│   └── images/
+│       ├── logo/                # SVG logo files (light, dark, icon)
+│       └── ...                  # Other static images
+├── src/
+│   ├── app/                     # Next.js App Router — pages and layouts
+│   │   ├── (admin)/             # Route group: authenticated admin pages
+│   │   │   ├── (others-pages)/  # Sub-group for non-dashboard admin pages
+│   │   │   │   ├── (chart)/     # Chart pages (line-chart, bar-chart)
+│   │   │   │   ├── (forms)/     # Form pages (form-elements)
+│   │   │   │   ├── (tables)/    # Table pages (basic-tables)
+│   │   │   │   ├── blank/       # Blank page template
+│   │   │   │   ├── calendar/    # Calendar page
+│   │   │   │   └── profile/     # User profile page
+│   │   │   ├── (ui-elements)/   # UI element showcase pages
+│   │   │   │   ├── alerts/
+│   │   │   │   ├── avatars/
+│   │   │   │   ├── badge/
+│   │   │   │   ├── buttons/
+│   │   │   │   ├── images/
+│   │   │   │   ├── modals/
+│   │   │   │   └── videos/
+│   │   │   ├── layout.tsx       # Admin layout (sidebar + header)
+│   │   │   └── page.tsx         # Dashboard home (/)
+│   │   ├── (full-width-pages)/  # Route group: full-width pages (no sidebar)
+│   │   │   ├── (auth)/          # Authentication pages
+│   │   │   │   ├── layout.tsx
+│   │   │   │   ├── signin/
+│   │   │   │   └── signup/
+│   │   │   ├── (error-pages)/   # Error pages (404)
+│   │   │   └── layout.tsx       # Full-width layout
+│   │   ├── globals.css          # Global styles and Tailwind CSS v4 theme
+│   │   ├── layout.tsx           # Root layout (fonts, ThemeProvider, SidebarProvider)
+│   │   └── not-found.tsx        # Custom 404 page
+│   ├── components/              # React components organised by domain
+│   │   ├── auth/                # Sign in / sign up form components
+│   │   ├── calendar/            # Calendar component
+│   │   ├── charts/              # ApexCharts wrappers (line, bar)
+│   │   ├── common/              # Shared components (ThemeToggleButton, etc.)
+│   │   ├── ecommerce/           # Dashboard ecommerce widgets
+│   │   ├── form/                # Form element components
+│   │   ├── header/              # Header sub-components (NotificationDropdown, UserDropdown)
+│   │   ├── tables/              # Table components
+│   │   ├── ui/                  # Generic UI components (Alert, Avatar, Badge, Button, Modal…)
+│   │   ├── user-profile/        # User profile section components
+│   │   └── videos/              # Video components
+│   ├── context/                 # React contexts
+│   │   ├── SidebarContext.tsx   # Sidebar expand/collapse state
+│   │   └── ThemeContext.tsx     # Light/dark theme state
+│   ├── hooks/                   # Custom React hooks
+│   │   ├── useGoBack.ts         # Navigate back in history
+│   │   └── useModal.ts          # Modal open/close state helper
+│   ├── icons/                   # SVG icon components (exported from index.ts)
+│   ├── layout/                  # Top-level layout components
+│   │   ├── AppHeader.tsx        # Sticky top navigation bar
+│   │   ├── AppSidebar.tsx       # Collapsible navigation sidebar
+│   │   ├── Backdrop.tsx         # Mobile sidebar overlay
+│   │   └── SidebarWidget.tsx    # Promotional widget at the bottom of the sidebar
+│   └── svg.d.ts                 # TypeScript declaration for SVG imports
+├── next.config.ts               # Next.js configuration (SVG loader via @svgr/webpack)
+├── postcss.config.js            # PostCSS configuration (@tailwindcss/postcss)
+├── package.json
+└── tsconfig.json
+```
+
+## App Router route groups
+
+Next.js route groups let you organise routes into folders without affecting the URL. TailAdmin uses two top-level groups.
+
+### `(admin)`
+
+All pages under `src/app/(admin)/` share the admin layout defined in `src/app/(admin)/layout.tsx`. This layout renders the `AppSidebar`, `AppHeader`, and a `Backdrop` overlay for mobile, then places page content in a responsive main area that shifts based on the sidebar state.
+
+The `(admin)` group contains two nested sub-groups:
+
+- **`(others-pages)`** — calendar, user profile, form elements, tables, charts, and the blank page template.
+- **`(ui-elements)`** — individual showcase pages for each UI component (alerts, avatars, badges, buttons, images, modals, videos).
+
+### `(full-width-pages)`
+
+Pages under `src/app/(full-width-pages)/` use a separate layout that renders without the sidebar. This group contains:
+
+- **`(auth)`** — sign in and sign up pages.
+- **`(error-pages)`** — the custom 404 error page.
+
+## Key configuration files
+
+### `next.config.ts`
+
+Configures the `@svgr/webpack` loader so that `.svg` files can be imported directly as React components in both Webpack and Turbopack modes.
+
+```typescript
+const nextConfig: NextConfig = {
+  webpack(config) {
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ["@svgr/webpack"],
+    });
+    return config;
+  },
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
+      },
+    },
+  },
+};
+```
+
+### `postcss.config.js`
+
+Uses the `@tailwindcss/postcss` plugin, which is the correct PostCSS integration for Tailwind CSS v4.
+
+```javascript
+module.exports = {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};
+```

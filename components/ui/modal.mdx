@@ -1,0 +1,161 @@
+---
+title: "Modal"
+description: "An accessible overlay dialog with backdrop blur, Escape-key dismissal, body-scroll lock, an optional close button, and a fullscreen mode. Designed to be paired with the useModal hook."
+---
+
+The `Modal` component (`src/components/ui/modal/index.tsx`) is a controlled, client-side dialog. State is managed externally — pair it with the `useModal` hook for the recommended pattern.
+
+## Import
+
+```tsx
+import { Modal } from "@/components/ui/modal";
+import { useModal } from "@/hooks/useModal";
+```
+
+## useModal hook
+
+`useModal` encapsulates the open/close boolean state and exposes stable callbacks.
+
+```typescript
+// src/hooks/useModal.ts
+"use client";
+import { useState, useCallback } from "react";
+
+export const useModal = (initialState: boolean = false) => {
+  const [isOpen, setIsOpen] = useState(initialState);
+
+  const openModal  = useCallback(() => setIsOpen(true),  []);
+  const closeModal = useCallback(() => setIsOpen(false), []);
+  const toggleModal = useCallback(() => setIsOpen((prev) => !prev), []);
+
+  return { isOpen, openModal, closeModal, toggleModal };
+};
+```
+
+| Return value | Type | Description |
+|---|---|---|
+| `isOpen` | `boolean` | Current open/closed state |
+| `openModal` | `() => void` | Sets state to `true` |
+| `closeModal` | `() => void` | Sets state to `false` |
+| `toggleModal` | `() => void` | Flips the current state |
+
+## Basic usage
+
+```tsx
+"use client";
+import { Modal } from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
+import { useModal } from "@/hooks/useModal";
+
+export default function DefaultModal() {
+  const { isOpen, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <Button size="sm" onClick={openModal}>Open Modal</Button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={closeModal}
+        className="max-w-[600px] p-5 lg:p-10"
+      >
+        <h4 className="font-semibold text-gray-800 mb-7 text-title-sm dark:text-white/90">
+          Modal Heading
+        </h4>
+        <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+          Modal body content goes here.
+        </p>
+        <div className="flex items-center justify-end w-full gap-3 mt-8">
+          <Button size="sm" variant="outline" onClick={closeModal}>Close</Button>
+          <Button size="sm" onClick={closeModal}>Save Changes</Button>
+        </div>
+      </Modal>
+    </>
+  );
+}
+```
+
+## Fullscreen modal
+
+Set `isFullscreen={true}` to disable the backdrop and let the modal fill the entire viewport. Supply a full-height layout inside `children`.
+
+```tsx
+"use client";
+import { Modal } from "@/components/ui/modal";
+import Button from "@/components/ui/button/Button";
+import { useModal } from "@/hooks/useModal";
+
+export default function FullScreenModal() {
+  const { isOpen, openModal, closeModal } = useModal();
+
+  return (
+    <>
+      <Button size="sm" onClick={openModal}>Open Fullscreen</Button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={closeModal}
+        isFullscreen={true}
+        showCloseButton={true}
+      >
+        <div className="fixed top-0 left-0 flex flex-col justify-between w-full h-screen p-6 overflow-y-auto bg-white dark:bg-gray-900 lg:p-10">
+          <div>
+            <h4 className="font-semibold text-gray-800 mb-7 text-title-sm dark:text-white/90">
+              Full Screen Modal
+            </h4>
+            <p className="text-sm leading-6 text-gray-500 dark:text-gray-400">
+              Content fills the entire screen.
+            </p>
+          </div>
+          <div className="flex items-center justify-end gap-3 mt-8">
+            <Button size="sm" variant="outline" onClick={closeModal}>Close</Button>
+            <Button size="sm" onClick={closeModal}>Save Changes</Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `isOpen` | `boolean` | Yes | — | Controls modal visibility; the component returns `null` when `false` |
+| `onClose` | `() => void` | Yes | — | Called when the backdrop is clicked or Escape is pressed |
+| `children` | `React.ReactNode` | Yes | — | Modal content |
+| `className` | `string` | No | — | Additional classes on the inner content wrapper (use for max-width and padding) |
+| `showCloseButton` | `boolean` | No | `true` | Renders a close icon button in the top-right corner |
+| `isFullscreen` | `boolean` | No | `false` | Hides the backdrop and makes the content wrapper fill the viewport |
+
+## Behaviour
+
+<CardGroup cols={2}>
+  <Card title="Escape key" icon="keyboard">
+    The modal listens for `keydown` events while open and calls `onClose` when Escape is pressed.
+  </Card>
+  <Card title="Backdrop click" icon="hand-pointer">
+    Clicking the blurred backdrop calls `onClose`. The content area uses `stopPropagation` to prevent accidental dismissal.
+  </Card>
+  <Card title="Scroll lock" icon="lock">
+    `document.body.style.overflow` is set to `hidden` while the modal is open and restored on close.
+  </Card>
+  <Card title="Fullscreen mode" icon="expand">
+    When `isFullscreen={true}` the backdrop is hidden and the `w-full h-full` content wrapper fills the viewport.
+  </Card>
+</CardGroup>
+
+## Source
+
+```tsx
+// src/components/ui/modal/index.tsx
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  className?: string;
+  children: React.ReactNode;
+  showCloseButton?: boolean;
+  isFullscreen?: boolean;
+}
+```

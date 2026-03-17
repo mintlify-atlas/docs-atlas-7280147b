@@ -1,0 +1,146 @@
+---
+title: "Alerts"
+description: "Contextual feedback banners with four semantic variants — success, error, warning, and info — with optional action links."
+---
+
+The `Alert` component renders a bordered, colour-coded notification banner. It ships with built-in icons for each semantic variant and supports an optional "Learn more" link.
+
+## Import
+
+```tsx
+import Alert from "@/components/ui/alert/Alert";
+```
+
+## Usage
+
+### Success
+
+```tsx
+<Alert
+  variant="success"
+  title="Success Message"
+  message="Be cautious when performing this action."
+  showLink={true}
+  linkHref="/"
+  linkText="Learn more"
+/>
+
+// Without link
+<Alert
+  variant="success"
+  title="Success Message"
+  message="Be cautious when performing this action."
+/>
+```
+
+### Warning
+
+```tsx
+<Alert
+  variant="warning"
+  title="Warning Message"
+  message="Be cautious when performing this action."
+  showLink={true}
+  linkHref="/"
+  linkText="Learn more"
+/>
+```
+
+### Error
+
+```tsx
+<Alert
+  variant="error"
+  title="Error Message"
+  message="Be cautious when performing this action."
+  showLink={true}
+  linkHref="/"
+  linkText="Learn more"
+/>
+```
+
+### Info
+
+```tsx
+<Alert
+  variant="info"
+  title="Info Message"
+  message="Be cautious when performing this action."
+  showLink={true}
+  linkHref="/"
+  linkText="Learn more"
+/>
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `variant` | `"success" \| "error" \| "warning" \| "info"` | Yes | — | Sets the colour scheme and icon |
+| `title` | `string` | Yes | — | Bold heading rendered above the message |
+| `message` | `string` | Yes | — | Body text of the alert |
+| `showLink` | `boolean` | No | `false` | When `true`, renders an anchor below the message |
+| `linkHref` | `string` | No | `"#"` | Destination URL for the link |
+| `linkText` | `string` | No | `"Learn more"` | Display text for the link |
+
+## Variant styles
+
+| Variant | Background | Border | Icon colour |
+|---|---|---|---|
+| `success` | `bg-success-50` | `border-success-500` | `text-success-500` |
+| `error` | `bg-error-50` | `border-error-500` | `text-error-500` |
+| `warning` | `bg-warning-50` | `border-warning-500` | `text-warning-500` |
+| `info` | `bg-blue-light-50` | `border-blue-light-500` | `text-blue-light-500` |
+
+<Note>
+Dark mode variants are included automatically — each colour token has a corresponding `dark:` class built into the component.
+</Note>
+
+## Source
+
+```tsx
+// src/components/ui/alert/Alert.tsx
+import Link from "next/link";
+import React from "react";
+
+interface AlertProps {
+  variant: "success" | "error" | "warning" | "info";
+  title: string;
+  message: string;
+  showLink?: boolean;
+  linkHref?: string;
+  linkText?: string;
+}
+
+const Alert: React.FC<AlertProps> = ({
+  variant,
+  title,
+  message,
+  showLink = false,
+  linkHref = "#",
+  linkText = "Learn more",
+}) => {
+  const variantClasses = {
+    success: {
+      container: "border-success-500 bg-success-50 dark:border-success-500/30 dark:bg-success-500/15",
+      icon: "text-success-500",
+    },
+    error: {
+      container: "border-error-500 bg-error-50 dark:border-error-500/30 dark:bg-error-500/15",
+      icon: "text-error-500",
+    },
+    warning: {
+      container: "border-warning-500 bg-warning-50 dark:border-warning-500/30 dark:bg-warning-500/15",
+      icon: "text-warning-500",
+    },
+    info: {
+      container: "border-blue-light-500 bg-blue-light-50 dark:border-blue-light-500/30 dark:bg-blue-light-500/15",
+      icon: "text-blue-light-500",
+    },
+  };
+
+  // ... icon definitions and render
+};
+
+export default Alert;
+```

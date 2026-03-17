@@ -1,0 +1,211 @@
+---
+title: "Bar chart"
+description: "A vertical bar chart component built on ApexCharts that renders a monthly Sales series with rounded column tops."
+---
+
+`BarChartOne` is a client-side chart component that uses `react-apexcharts` to render a single-series vertical bar chart. It is dynamically imported to prevent server-side rendering issues with ApexCharts.
+
+<Note>
+  `BarChartOne` requires the `react-apexcharts` and `apexcharts` packages. Install them before use:
+
+  ```bash
+  npm install react-apexcharts apexcharts
+  ```
+</Note>
+
+## Import
+
+```tsx
+import BarChartOne from "@/components/charts/bar/BarChartOne";
+```
+
+## Usage
+
+### Basic usage
+
+Drop `BarChartOne` inside any container. The chart renders at a fixed height of `180px` and scrolls horizontally on small screens.
+
+```tsx
+import ComponentCard from "@/components/common/ComponentCard";
+import BarChartOne from "@/components/charts/bar/BarChartOne";
+
+export default function BarChartPage() {
+  return (
+    <ComponentCard title="Bar Chart 1">
+      <BarChartOne />
+    </ComponentCard>
+  );
+}
+```
+
+### Route-level page
+
+The chart is used on the `/bar-chart` admin page:
+
+```tsx
+// src/app/(admin)/(others-pages)/(chart)/bar-chart/page.tsx
+import BarChartOne from "@/components/charts/bar/BarChartOne";
+import ComponentCard from "@/components/common/ComponentCard";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+
+export default function page() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Bar Chart" />
+      <div className="space-y-6">
+        <ComponentCard title="Bar Chart 1">
+          <BarChartOne />
+        </ComponentCard>
+      </div>
+    </div>
+  );
+}
+```
+
+## ApexCharts configuration
+
+### Chart type and dimensions
+
+| Option | Value | Description |
+|---|---|---|
+| `chart.type` | `"bar"` | Renders vertical columns |
+| `chart.height` | `180` | Fixed pixel height |
+| `chart.fontFamily` | `"Outfit, sans-serif"` | Matches the dashboard's global font |
+| `chart.toolbar.show` | `false` | Hides the built-in toolbar |
+
+### Column styling
+
+```tsx
+plotOptions: {
+  bar: {
+    horizontal: false,       // vertical columns
+    columnWidth: "39%",      // column width relative to available space
+    borderRadius: 5,         // rounded top corners
+    borderRadiusApplication: "end", // apply rounding only to the top
+  },
+},
+```
+
+### Stroke
+
+```tsx
+stroke: {
+  show: true,
+  width: 4,
+  colors: ["transparent"], // transparent gap between columns
+},
+```
+
+### Legend
+
+The legend is shown at the top-left in the `"Outfit"` font family.
+
+### Grid
+
+Only horizontal y-axis grid lines are shown (`yaxis.lines.show: true`). The x-axis `axisBorder` and `axisTicks` are hidden.
+
+### Tooltip
+
+```tsx
+tooltip: {
+  x: { show: false },
+  y: { formatter: (val: number) => `${val}` },
+},
+```
+
+### Colors
+
+The single series uses `["#465fff"]` — the dashboard's primary brand blue.
+
+### Series data
+
+```tsx
+const series = [
+  {
+    name: "Sales",
+    data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+  },
+];
+```
+
+## Source
+
+```tsx
+// src/components/charts/bar/BarChartOne.tsx
+"use client";
+import React from "react";
+import { ApexOptions } from "apexcharts";
+import dynamic from "next/dynamic";
+
+const ReactApexChart = dynamic(() => import("react-apexcharts"), {
+  ssr: false,
+});
+
+export default function BarChartOne() {
+  const options: ApexOptions = {
+    colors: ["#465fff"],
+    chart: {
+      fontFamily: "Outfit, sans-serif",
+      type: "bar",
+      height: 180,
+      toolbar: { show: false },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: "39%",
+        borderRadius: 5,
+        borderRadiusApplication: "end",
+      },
+    },
+    dataLabels: { enabled: false },
+    stroke: {
+      show: true,
+      width: 4,
+      colors: ["transparent"],
+    },
+    xaxis: {
+      categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    legend: {
+      show: true,
+      position: "top",
+      horizontalAlign: "left",
+      fontFamily: "Outfit",
+    },
+    yaxis: {
+      title: { text: undefined },
+    },
+    grid: {
+      yaxis: { lines: { show: true } },
+    },
+    fill: { opacity: 1 },
+    tooltip: {
+      x: { show: false },
+      y: { formatter: (val: number) => `${val}` },
+    },
+  };
+
+  const series = [
+    {
+      name: "Sales",
+      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
+    },
+  ];
+
+  return (
+    <div className="max-w-full overflow-x-auto custom-scrollbar">
+      <div id="chartOne" className="min-w-[1000px]">
+        <ReactApexChart
+          options={options}
+          series={series}
+          type="bar"
+          height={180}
+        />
+      </div>
+    </div>
+  );
+}
+```

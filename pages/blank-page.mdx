@@ -1,0 +1,78 @@
+---
+title: "Blank page"
+description: "A minimal starter page inside the admin shell. Use it as the foundation when adding a new page to TailAdmin."
+---
+
+The blank page lives at `/blank` and is served by `src/app/(admin)/(others-pages)/blank/page.tsx`. It renders a centred placeholder card inside the standard admin shell (sidebar + header), giving you a clean starting point for any new page you want to build.
+
+## Page source
+
+```tsx
+// src/app/(admin)/(others-pages)/blank/page.tsx
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { Metadata } from "next";
+import React from "react";
+
+export const metadata: Metadata = {
+  title: "Next.js Blank Page | TailAdmin - Next.js Dashboard Template",
+  description: "This is Next.js Blank Page TailAdmin Dashboard Template",
+};
+
+export default function BlankPage() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Blank Page" />
+      <div className="min-h-screen rounded-2xl border border-gray-200 bg-white px-5 py-7 dark:border-gray-800 dark:bg-white/[0.03] xl:px-10 xl:py-12">
+        <div className="mx-auto w-full max-w-[630px] text-center">
+          <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
+            Card Title Here
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 sm:text-base">
+            Start putting content on grids or panels, you can also use different
+            combinations of grids. Please check out the dashboard and other pages
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+## Using it as a starting point
+
+<Steps>
+  <Step title="Duplicate the page file">
+    Copy `src/app/(admin)/(others-pages)/blank/page.tsx` into a new directory that matches your intended route. For example, to create a `/reports` page:
+
+    ```bash
+    cp -r src/app/\(admin\)/\(others-pages\)/blank src/app/\(admin\)/\(others-pages\)/reports
+    ```
+  </Step>
+  <Step title="Update the metadata">
+    Replace the `title` and `description` in the `metadata` export with values appropriate for your new page.
+
+    ```tsx
+    export const metadata: Metadata = {
+      title: "Reports | TailAdmin",
+      description: "Monthly and annual reports dashboard",
+    };
+    ```
+  </Step>
+  <Step title="Update the breadcrumb title">
+    Change the `pageTitle` prop passed to `PageBreadcrumb` to reflect the name of your new page.
+
+    ```tsx
+    <PageBreadcrumb pageTitle="Reports" />
+    ```
+  </Step>
+  <Step title="Replace the placeholder content">
+    Remove the centred placeholder `<div>` and add your actual page content — components, grids, tables, charts, or forms — using the patterns you see on other pages in the template.
+  </Step>
+  <Step title="Add the route to the sidebar">
+    Open `src/components/layout/AppSidebar.tsx` (or equivalent) and add a nav item pointing to your new route so users can access it from the sidebar.
+  </Step>
+</Steps>
+
+<Tip>
+The outer `<div className="min-h-screen rounded-2xl border ...">` wrapper is the standard page-level container used throughout TailAdmin. Keep it when replacing the placeholder content so your page stays visually consistent with the rest of the admin.
+</Tip>

@@ -1,0 +1,116 @@
+---
+title: "Deploy to Vercel"
+description: "Step-by-step guide to deploying TailAdmin to Vercel, including environment variables and the Vercel CLI method."
+---
+
+Vercel is the recommended deployment platform for Next.js projects. It auto-detects Next.js, sets the correct build command, and provides edge caching out of the box.
+
+## Deploy via the Vercel dashboard
+
+<Steps>
+  <Step title="Push your project to GitHub">
+    Commit your changes and push to a GitHub repository:
+
+    ```bash
+    git init
+    git add .
+    git commit -m "Initial commit"
+    git remote add origin https://github.com/your-username/your-repo.git
+    git push -u origin main
+    ```
+
+    <Note>
+      Vercel also supports GitLab and Bitbucket if you prefer those providers.
+    </Note>
+  </Step>
+
+  <Step title="Import the project on Vercel">
+    1. Go to [vercel.com](https://vercel.com) and sign in.
+    2. Click **Add New Project**.
+    3. Select **Import Git Repository** and authorize Vercel to access your GitHub account.
+    4. Find your repository in the list and click **Import**.
+  </Step>
+
+  <Step title="Configure build settings">
+    Vercel auto-detects Next.js and fills in the correct defaults:
+
+    | Setting | Value |
+    |---|---|
+    | Framework Preset | Next.js |
+    | Build Command | `next build` |
+    | Output Directory | `.next` |
+    | Install Command | `npm install` |
+
+    You do not need to change these unless you have a custom project structure.
+
+    If you use a monorepo, set the **Root Directory** to the folder containing `package.json`.
+  </Step>
+
+  <Step title="Add environment variables">
+    If your project uses environment variables (for example, an API base URL or auth secret), add them under **Environment Variables** before deploying:
+
+    ```
+    NEXT_PUBLIC_API_URL=https://api.yourapp.com
+    ```
+
+    Variables prefixed with `NEXT_PUBLIC_` are inlined into the client bundle and accessible in the browser. All other variables are server-only.
+
+    <Warning>
+      Never commit `.env.local` or any file containing secrets to your repository.
+    </Warning>
+  </Step>
+
+  <Step title="Deploy">
+    Click **Deploy**. Vercel runs `npm install` and `next build`, then publishes the project to a `.vercel.app` URL.
+
+    Every subsequent push to the `main` branch triggers a new production deployment automatically. Pushes to other branches create preview deployments.
+  </Step>
+</Steps>
+
+## Deploy via the Vercel CLI
+
+If you prefer to deploy from your terminal:
+
+<Steps>
+  <Step title="Install the Vercel CLI">
+    ```bash
+    npm install -g vercel
+    ```
+  </Step>
+
+  <Step title="Log in">
+    ```bash
+    vercel login
+    ```
+  </Step>
+
+  <Step title="Deploy">
+    Run the following command from your project root:
+
+    ```bash
+    vercel
+    ```
+
+    The CLI walks you through linking the project to a Vercel team and sets up the deployment. To deploy directly to production (skipping the preview URL):
+
+    ```bash
+    vercel --prod
+    ```
+  </Step>
+</Steps>
+
+## Environment variables
+
+TailAdmin itself does not require any environment variables out of the box. If you integrate a backend or third-party service, follow this pattern:
+
+```
+# .env.local (not committed to version control)
+NEXT_PUBLIC_API_URL=https://api.yourapp.com
+AUTH_SECRET=your-secret-value
+```
+
+On Vercel, set the same keys in **Project Settings → Environment Variables**. Vercel makes them available during the build and at runtime.
+
+## Custom domain
+
+To attach a custom domain, go to **Project Settings → Domains** in the Vercel dashboard and add your domain. Vercel provisions a TLS certificate automatically via Let's Encrypt.

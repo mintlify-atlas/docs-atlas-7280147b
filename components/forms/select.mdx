@@ -1,0 +1,157 @@
+---
+title: "Select"
+description: "A controlled single-option dropdown built on the native <select> element with Tailwind styling, dark-mode support, and a customisable placeholder."
+---
+
+The `Select` component (`src/components/form/Select.tsx`) wraps a native `<select>` with consistent styling that matches the rest of the TailAdmin form system. It manages its own selected-value state internally and calls a parent handler on every change.
+
+## Import
+
+```tsx
+import Select from "@/components/form/Select";
+```
+
+## Usage
+
+### Basic usage
+
+```tsx
+"use client";
+import Label from "@/components/form/Label";
+import Select from "@/components/form/Select";
+import { ChevronDownIcon } from "@/icons";
+
+const options = [
+  { value: "marketing", label: "Marketing" },
+  { value: "template", label: "Template" },
+  { value: "development", label: "Development" },
+];
+
+export default function MyForm() {
+  const handleSelectChange = (value: string) => {
+    console.log("Selected:", value);
+  };
+
+  return (
+    <div>
+      <Label>Department</Label>
+      <div className="relative">
+        <Select
+          options={options}
+          placeholder="Select an option"
+          onChange={handleSelectChange}
+        />
+        <span className="absolute text-gray-500 -translate-y-1/2 pointer-events-none right-3 top-1/2 dark:text-gray-400">
+          <ChevronDownIcon />
+        </span>
+      </div>
+    </div>
+  );
+}
+```
+
+<Note>
+  The native `<select>` element does not render a custom caret. Add a `ChevronDownIcon` in an absolutely positioned, `pointer-events-none` span to replicate the design shown in the TailAdmin demo.
+</Note>
+
+### With a default value
+
+```tsx
+<Select
+  options={options}
+  defaultValue="marketing"
+  onChange={handleSelectChange}
+/>
+```
+
+### Custom className
+
+```tsx
+<Select
+  options={options}
+  onChange={handleSelectChange}
+  className="dark:bg-dark-900"
+/>
+```
+
+## Props
+
+| Prop | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `options` | `Option[]` | Yes | — | Array of `{ value: string; label: string }` objects to render as `<option>` elements |
+| `placeholder` | `string` | No | `"Select an option"` | Disabled first option shown when no value is selected |
+| `onChange` | `(value: string) => void` | Yes | — | Called with the selected value on every change |
+| `className` | `string` | No | `""` | Additional Tailwind classes merged onto the `<select>` element |
+| `defaultValue` | `string` | No | `""` | Pre-selects the option matching this value on mount |
+
+## Option type
+
+```typescript
+interface Option {
+  value: string;
+  label: string;
+}
+```
+
+## Source
+
+```tsx
+// src/components/form/Select.tsx
+import React, { useState } from "react";
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface SelectProps {
+  options: Option[];
+  placeholder?: string;
+  onChange: (value: string) => void;
+  className?: string;
+  defaultValue?: string;
+}
+
+const Select: React.FC<SelectProps> = ({
+  options,
+  placeholder = "Select an option",
+  onChange,
+  className = "",
+  defaultValue = "",
+}) => {
+  const [selectedValue, setSelectedValue] = useState<string>(defaultValue);
+
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setSelectedValue(value);
+    onChange(value);
+  };
+
+  return (
+    <select
+      className={`h-11 w-full appearance-none rounded-lg border border-gray-300 px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 ${
+        selectedValue
+          ? "text-gray-800 dark:text-white/90"
+          : "text-gray-400 dark:text-gray-400"
+      } ${className}`}
+      value={selectedValue}
+      onChange={handleChange}
+    >
+      <option value="" disabled className="text-gray-700 dark:bg-gray-900 dark:text-gray-400">
+        {placeholder}
+      </option>
+      {options.map((option) => (
+        <option
+          key={option.value}
+          value={option.value}
+          className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+        >
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
+};
+
+export default Select;
+```

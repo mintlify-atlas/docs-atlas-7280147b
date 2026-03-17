@@ -1,0 +1,276 @@
+---
+title: "Calendar"
+description: "Interactive calendar page built with FullCalendar v6. Supports month, week, and day views, click-to-create events, click-to-edit events, and colour-coded event categories via a modal."
+---
+
+The calendar page lives at `/calendar` and is served by `src/app/(admin)/(others-pages)/calendar/page.tsx`. It renders the `Calendar` component alongside a `PageBreadcrumb` header inside the standard admin shell (sidebar + header).
+
+## Page file
+
+```tsx
+// src/app/(admin)/(others-pages)/calendar/page.tsx
+import Calendar from "@/components/calendar/Calendar";
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+import { Metadata } from "next";
+import React from "react";
+
+export const metadata: Metadata = {
+  title: "Next.js Calender | TailAdmin - Next.js Dashboard Template",
+  description:
+    "This is Next.js Calender page for TailAdmin Tailwind CSS Admin Dashboard Template",
+};
+
+export default function page() {
+  return (
+    <div>
+      <PageBreadcrumb pageTitle="Calendar" />
+      <Calendar />
+    </div>
+  );
+}
+```
+
+## FullCalendar packages
+
+The calendar relies on the following `@fullcalendar/*` packages, all at version `^6.1.19`:
+
+| Package | Purpose |
+|---|---|
+| `@fullcalendar/react` | React wrapper for FullCalendar |
+| `@fullcalendar/core` | Core engine and `EventInput` types |
+| `@fullcalendar/daygrid` | Month and day-grid views (`dayGridMonth`) |
+| `@fullcalendar/timegrid` | Week and day time-grid views (`timeGridWeek`, `timeGridDay`) |
+| `@fullcalendar/interaction` | Click-to-select and drag-and-drop support |
+| `@fullcalendar/list` | List view (installed but not used in the default toolbar) |
+
+Install them if you are starting from scratch:
+
+```bash
+npm install @fullcalendar/react @fullcalendar/core @fullcalendar/daygrid @fullcalendar/timegrid @fullcalendar/interaction @fullcalendar/list
+```
+
+## Calendar component
+
+The `Calendar` component (`src/components/calendar/Calendar.tsx`) is a `"use client"` component. It owns all event state and exposes an **Add Event** button in the toolbar and a `Modal` for creating or editing events.
+
+### Views
+
+The toolbar is configured with three built-in views:
+
+| View | Toolbar button | Description |
+|---|---|---|
+| `dayGridMonth` | **Month** | Default view — month grid, one cell per day |
+| `timeGridWeek` | **Week** | 7-column time-grid showing hourly slots |
+| `timeGridDay` | **Day** | Single-day time-grid |
+
+### Event colour categories
+
+Each event carries an `extendedProps.calendar` value that maps to a CSS colour class:
+
+| Category | CSS class applied |
+|---|---|
+| `Danger` | `fc-bg-danger` |
+| `Success` | `fc-bg-success` |
+| `Primary` | `fc-bg-primary` |
+| `Warning` | `fc-bg-warning` |
+
+The `renderEventContent` function applies the appropriate class to each event pill rendered inside the calendar grid.
+
+### Full source
+
+```tsx
+// src/components/calendar/Calendar.tsx
+"use client";
+import React, { useState, useRef, useEffect } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import {
+  EventInput,
+  DateSelectArg,
+  EventClickArg,
+  EventContentArg,
+} from "@fullcalendar/core";
+import { useModal } from "@/hooks/useModal";
+import { Modal } from "@/components/ui/modal";
+
+interface CalendarEvent extends EventInput {
+  extendedProps: {
+    calendar: string;
+  };
+}
+
+const Calendar: React.FC = () => {
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [eventTitle, setEventTitle] = useState("");
+  const [eventStartDate, setEventStartDate] = useState("");
+  const [eventEndDate, setEventEndDate] = useState("");
+  const [eventLevel, setEventLevel] = useState("");
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const calendarRef = useRef<FullCalendar>(null);
+  const { isOpen, openModal, closeModal } = useModal();
+
+  const calendarsEvents = {
+    Danger: "danger",
+    Success: "success",
+    Primary: "primary",
+    Warning: "warning",
+  };
+
+  useEffect(() => {
+    setEvents([
+      {
+        id: "1",
+        title: "Event Conf.",
+        start: new Date().toISOString().split("T")[0],
+        extendedProps: { calendar: "Danger" },
+      },
+      {
+        id: "2",
+        title: "Meeting",
+        start: new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        extendedProps: { calendar: "Success" },
+      },
+      {
+        id: "3",
+        title: "Workshop",
+        start: new Date(Date.now() + 172800000).toISOString().split("T")[0],
+        end: new Date(Date.now() + 259200000).toISOString().split("T")[0],
+        extendedProps: { calendar: "Primary" },
+      },
+    ]);
+  }, []);
+
+  const handleDateSelect = (selectInfo: DateSelectArg) => {
+    resetModalFields();
+    setEventStartDate(selectInfo.startStr);
+    setEventEndDate(selectInfo.endStr || selectInfo.startStr);
+    openModal();
+  };
+
+  const handleEventClick = (clickInfo: EventClickArg) => {
+    const event = clickInfo.event;
+    setSelectedEvent(event as unknown as CalendarEvent);
+    setEventTitle(event.title);
+    setEventStartDate(event.start?.toISOString().split("T")[0] || "");
+    setEventEndDate(event.end?.toISOString().split("T")[0] || "");
+    setEventLevel(event.extendedProps.calendar);
+    openModal();
+  };
+
+  const handleAddOrUpdateEvent = () => {
+    if (selectedEvent) {
+      setEvents((prevEvents) =>
+        prevEvents.map((event) =>
+          event.id === selectedEvent.id
+            ? {
+                ...event,
+                title: eventTitle,
+                start: eventStartDate,
+                end: eventEndDate,
+                extendedProps: { calendar: eventLevel },
+              }
+            : event
+        )
+      );
+    } else {
+      const newEvent: CalendarEvent = {
+        id: Date.now().toString(),
+        title: eventTitle,
+        start: eventStartDate,
+        end: eventEndDate,
+        allDay: true,
+        extendedProps: { calendar: eventLevel },
+      };
+      setEvents((prevEvents) => [...prevEvents, newEvent]);
+    }
+    closeModal();
+    resetModalFields();
+  };
+
+  const resetModalFields = () => {
+    setEventTitle("");
+    setEventStartDate("");
+    setEventEndDate("");
+    setEventLevel("");
+    setSelectedEvent(null);
+  };
+
+  return (
+    <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="custom-calendar">
+        <FullCalendar
+          ref={calendarRef}
+          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          headerToolbar={{
+            left: "prev,next addEventButton",
+            center: "title",
+            right: "dayGridMonth,timeGridWeek,timeGridDay",
+          }}
+          events={events}
+          selectable={true}
+          select={handleDateSelect}
+          eventClick={handleEventClick}
+          eventContent={renderEventContent}
+          customButtons={{
+            addEventButton: {
+              text: "Add Event +",
+              click: openModal,
+            },
+          }}
+        />
+      </div>
+      {/* Modal for add/edit — see full source in the repository */}
+    </div>
+  );
+};
+
+const renderEventContent = (eventInfo: EventContentArg) => {
+  const colorClass = `fc-bg-${eventInfo.event.extendedProps.calendar.toLowerCase()}`;
+  return (
+    <div
+      className={`event-fc-color flex fc-event-main ${colorClass} p-1 rounded-sm`}
+    >
+      <div className="fc-daygrid-event-dot"></div>
+      <div className="fc-event-time">{eventInfo.timeText}</div>
+      <div className="fc-event-title">{eventInfo.event.title}</div>
+    </div>
+  );
+};
+
+export default Calendar;
+```
+
+## Adding and modifying events
+
+### Add an event
+
+<Steps>
+  <Step title="Click a date on the calendar">
+    Clicking or dragging across dates triggers `handleDateSelect`, which pre-fills the start and end date fields in the modal and opens it.
+  </Step>
+  <Step title="Fill in the modal">
+    Enter an **Event Title**, pick an **Event Color** (Danger, Success, Primary, or Warning), and set the **Start Date** and **End Date**.
+  </Step>
+  <Step title="Save">
+    Click **Add Event**. The component calls `handleAddOrUpdateEvent`, which appends a new `CalendarEvent` object to the `events` state array and closes the modal.
+  </Step>
+</Steps>
+
+### Edit an existing event
+
+Click any event pill on the calendar. `handleEventClick` populates the modal fields with the event's current values and sets `selectedEvent`. Clicking **Update Changes** calls `handleAddOrUpdateEvent`, which replaces the matching event in state by `id`.
+
+### Persist events to a database
+
+By default, all events are stored in React component state and are lost on page reload. To persist events:
+
+1. Replace the `useEffect` seed data with a fetch from your API or database.
+2. Call your API inside `handleAddOrUpdateEvent` to create or update the record before (or after) updating local state.
+3. Add a delete handler — call `setEvents(prev => prev.filter(e => e.id !== id))` and remove the record from your database.
+
+<Warning>
+The current implementation does not validate that the end date is after the start date. Add a check inside `handleAddOrUpdateEvent` before updating state if you plan to use time-grid views where overlapping or invalid ranges are visible.
+</Warning>
